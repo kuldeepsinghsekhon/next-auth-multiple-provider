@@ -1,6 +1,7 @@
 import "./globals.css"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter } from 'next/font/google'
+import { Providers } from '@/components/providers'
 import Footer from "@/components/footer"
 import Header from "@/components/header"
 
@@ -14,12 +15,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: React.PropsWithChildren) {
   return (
+
     <html lang="en">
       <body className={inter.className}>
         <div className="flex h-full min-h-screen w-full flex-col justify-between">
           <Header />
-          <main className="mx-auto w-full max-w-3xl flex-auto px-4 py-4 sm:px-6 md:py-6">
-            {children}
+          <main className="mx-auto w-full  flex-auto px-4 py-4 sm:px-6 md:py-6">
+          <Providers>{children}</Providers>
           </main>
           <Footer />
         </div>

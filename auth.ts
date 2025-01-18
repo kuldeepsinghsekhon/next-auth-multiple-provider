@@ -82,15 +82,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // MicrosoftEntraId,
     // Netlify,
     // Okta,
-    Passkey({
-      formFields: {
-        email: {
-          label: "Username",
-          required: true,
-          autocomplete: "username webauthn",
-        },
-      },
-    }),
+    // Passkey({
+    //   formFields: {
+    //     email: {
+    //       label: "Username",
+    //       required: true,
+    //       autocomplete: "username webauthn",
+    //     },
+    //   },
+    // }),
     // Passage,
     // Pinterest,
     // Reddit,
@@ -175,9 +175,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }
   },
   experimental: { enableWebAuthn: true },
-  
 })
-
 declare module "next-auth" {
   interface Session {
     provider?: string

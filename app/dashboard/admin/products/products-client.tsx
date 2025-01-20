@@ -9,6 +9,7 @@ import { ItemsSearch } from './Items-search'
 import { AddProductDialog } from './add-product-dialog'
 import { type Product } from '@prisma/client'
 import { ExportButton } from './export-button'
+import{ PermissionWrapper} from '@/components/PermissionWrapper'
 
 interface ProductsClientProps {
     products: Product[]
@@ -38,6 +39,8 @@ export function ProductsClient({
                 </TabsList>
                 <div className="flex items-center gap-2">
                 <ExportButton searchParams={searchParams} />
+                <PermissionWrapper permission="create:product">
+
                     <Button
                         size="sm"
                         className="h-8 gap-1"
@@ -46,6 +49,7 @@ export function ProductsClient({
                         <PlusCircle className="h-3.5 w-3.5" />
                         <span className="sr-only sm:not-sr-only">Add Product</span>
                     </Button>
+                    </PermissionWrapper>
                 </div>
             </div>
 

@@ -24,6 +24,7 @@ export default function Footer() {
           {packageJSON.version}
         </CustomLink>
       </div>
+
     </footer>
   )
 }

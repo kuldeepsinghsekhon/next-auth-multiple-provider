@@ -1,0 +1,15 @@
+import { auth } from "./auth"
+import { NextResponse,NextRequest } from "next/server"
+
+export async function middleware(request: NextRequest) {
+  const session = await auth()
+
+  // Protected routes
+  // if (request.nextUrl.pathname.startsWith('/dashboard/admin')) {
+  //   if (!session?.user?.permissions?.includes('manage:users')) {
+  //     return NextResponse.redirect(new URL('/auth/signin', request.url))
+  //   }
+  // }
+
+  return NextResponse.next()
+}

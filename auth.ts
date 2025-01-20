@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { DefaultSession } from "next-auth"
 import "next-auth/jwt"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
@@ -40,17 +40,19 @@ import Zoom from "next-auth/providers/zoom"
 import { createStorage } from "unstorage"
 import memoryDriver from "unstorage/drivers/memory"
 import vercelKVDriver from "unstorage/drivers/vercel-kv"
-import { UnstorageAdapter } from "@auth/unstorage-adapter"
+import { ROLES,getPermissions,setPermissions } from "@/lib/permissions";
 
-const storage = createStorage({
-  driver: process.env.VERCEL
-    ? vercelKVDriver({
-        url: process.env.AUTH_KV_REST_API_URL,
-        token: process.env.AUTH_KV_REST_API_TOKEN,
-        env: false,
-      })
-    : memoryDriver(),
-})
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string
+      role?: string
+      permissions?: string[]
+      provider?: string
+    } & DefaultSession["user"]
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: !!process.env.AUTH_DEBUG,
@@ -118,34 +120,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           include: { accounts: true },
         })
 
-        // New user - allow sign in
-        if (!existingUser) return true
-
-        // Existing user - check if this provider account exists
-        if (existingUser.accounts.some(acc => acc.provider === account?.provider)) {
-          return true
-        }
-
-        // Link new provider account to existing user
-        if (account) {
-          await prisma.account.create({
+        // For new users, set default role and permissions
+        if (!existingUser) {
+          const defaultRole = "USER"
+          const defaultPermissions = setPermissions(ROLES[defaultRole])
+          
+          // Create new user with string permissions
+          await prisma.user.create({
             data: {
-              userId: existingUser.id,
-              type: account.type,
-              provider: account.provider,
-              providerAccountId: account.providerAccountId,
-              access_token: account.access_token,
-              refresh_token: account.refresh_token,
-              expires_at: account.expires_at,
-              token_type: account.token_type,
-              scope: account.scope,
-              id_token: account.id_token,
-              session_state: account.session_state,
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              role: defaultRole,
+              permissions: defaultPermissions,
             },
           })
-          return true
+          
+          user.role = defaultRole
+          user.permissions = defaultPermissions
+        } else {
+          // For existing users, link new provider
+          if (account && !existingUser.accounts.some(acc => acc.provider === account.provider)) {
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                refresh_token: account.refresh_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state,
+              },
+            })
+          }
+          
+          user.role = existingUser.role
+          user.permissions = existingUser.permissions
         }
-
         return true
       } catch (error) {
         console.error("Error in signIn callback:", error)
@@ -157,33 +172,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (pathname === "/middleware-example") return !!auth
       return true
     },
-    jwt({ token, trigger, session, account }) {
-      if (trigger === "update") token.name = session.user.name
-      if (account?.provider === "keycloak") {
-        return { ...token, accessToken: account.access_token }
+    jwt({ token,user }) {
+      // if (trigger === "update") token.name = session.user.name
+      // if (account?.provider === "keycloak") {
+      //   return { ...token, accessToken: account.access_token }
+      // }
+      if (user) {
+        token.role = user.role
+        token.permissions = getPermissions(user.permissions)
       }
-      if (account) {
-        token.provider = account.provider
-      }
+      // if (account) {
+      //   token.provider = account.provider
+      // }
       return token
     },
     async session({ session, token }) {
-      if (token?.provider) {
-        session.provider = token.provider
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          role: token.role,
+          permissions: token.permissions,
+         // provider: token.provider
+        },
       }
-      return session
     }
   },
   experimental: { enableWebAuthn: true },
 })
-declare module "next-auth" {
-  interface Session {
-    provider?: string
-  }
-}
+
 
 declare module "next-auth/jwt" {
   interface JWT {
     accessToken?: string
+    id?: string
+    role?: string
+    permissions?: string[]
+    provider?: string
   }
 }

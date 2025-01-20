@@ -1,11 +1,17 @@
-export { auth as middleware } from "auth"
+import { NextResponse } from 'next/server'
+import { auth } from './auth'
 
-// Or like this if you need to do something here.
-// export default auth((req) => {
-//   console.log(req.auth) //  { session: { user: { ... } } }
-// })
+export default auth((req) => {
+  const isLoggedIn = !!req.auth
+  
+  // Protect dashboard routes
+  if (req.nextUrl.pathname.startsWith('/dashboard') && !isLoggedIn) {
+    return NextResponse.redirect(new URL('/auth/signin', req.url))
+  }
+})
 
-// Read more: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    '/dashboard/:path*',
+  ]
 }

@@ -6,7 +6,7 @@ import { Input } from "./ui/input"
 import { useState } from "react"
 import SessionData from "./session-data"
 import CustomLink from "./custom-link"
-
+import {PermissionWrapper} from '@/components/PermissionWrapper'
 const UpdateForm = () => {
   const { data: session, update } = useSession()
   const [name, setName] = useState(`New ${session?.user?.name}`)
@@ -49,6 +49,11 @@ export default function ClientExample() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-3xl font-bold">Client Side Rendering</h1>
+       <PermissionWrapper permission="create:product">
+            <button className="bg-blue-500 text-white px-4 py-2 rounded">
+              Add New Product
+            </button>
+          </PermissionWrapper>
       <p>
         This page fetches session data client side using the{" "}
         <CustomLink href="https://nextjs.authjs.dev/react#usesession">

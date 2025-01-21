@@ -27,7 +27,7 @@ export function ProductsClient({
     searchParams
 }: ProductsClientProps) {
     const [addProductOpen, setAddProductOpen] = useState(false)
-
+console.log('products',products)    
     return (
         <Tabs defaultValue="all">
             <div className="flex items-center justify-between">
@@ -39,7 +39,7 @@ export function ProductsClient({
                 </TabsList>
                 <div className="flex items-center gap-2">
                 <ExportButton searchParams={searchParams} />
-                <PermissionWrapper permission="create:product">
+               
 
                     <Button
                         size="sm"
@@ -49,7 +49,7 @@ export function ProductsClient({
                         <PlusCircle className="h-3.5 w-3.5" />
                         <span className="sr-only sm:not-sr-only">Add Product</span>
                     </Button>
-                    </PermissionWrapper>
+                 
                 </div>
             </div>
 

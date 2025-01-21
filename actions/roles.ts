@@ -8,10 +8,10 @@ export async function createRole(data: {
   name: string
   permissions: string[]
 }) {
-  const session = await auth()
-  if (!session?.user?.permissions?.includes('manage:roles')) {
-    throw new Error('Unauthorized')
-  }
+  // const session = await auth()
+  // if (!session?.user?.permissions?.includes('manage:roles')) {
+  //   throw new Error('Unauthorized')
+  // }
 
   const role = await prisma.role.create({
     data: {
@@ -34,10 +34,10 @@ export async function updateRole(id: string, data: {
   name?: string
   permissions?: string[]
 }) {
-  const session = await auth()
-  if (!session?.user?.permissions?.includes('manage:roles')) {
-    throw new Error('Unauthorized')
-  }
+  // const session = await auth()
+  // if (!session?.user?.permissions?.includes('manage:roles')) {
+  //   throw new Error('Unauthorized')
+  // }
 
   const role = await prisma.role.update({
     where: { id },
@@ -56,9 +56,9 @@ export async function updateRole(id: string, data: {
 
 export async function getRoles() {
   const session = await auth()
-  if (!session?.user?.permissions?.includes('view:roles')) {
-    throw new Error('Unauthorized')
-  }
+  // if (!session?.user?.permissions?.includes('view:roles')) {
+  //   throw new Error('Unauthorized')
+  // }
 
   return prisma.role.findMany({
     include: { permissions: true }
@@ -67,9 +67,9 @@ export async function getRoles() {
 
 export async function deleteRole(id: string) {
   const session = await auth()
-  if (!session?.user?.permissions?.includes('manage:roles')) {
-    throw new Error('Unauthorized')
-  }
+  // if (!session?.user?.permissions?.includes('manage:roles')) {
+  //   throw new Error('Unauthorized')
+  // }
 
   await prisma.role.delete({ where: { id } })
   revalidatePath('/dashboard/roles')

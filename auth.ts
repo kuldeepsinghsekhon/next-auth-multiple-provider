@@ -40,7 +40,7 @@ import Zoom from "next-auth/providers/zoom"
 import { createStorage } from "unstorage"
 import memoryDriver from "unstorage/drivers/memory"
 import vercelKVDriver from "unstorage/drivers/vercel-kv"
-import { ROLES,getPermissions,setPermissions } from "@/lib/permissions";
+import { ROLES,getPermissions,getPermissionNames,setPermissions } from "@/lib/permissions";
 
 
 declare module "next-auth" {
@@ -54,6 +54,24 @@ declare module "next-auth" {
   }
 }
 
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string
+    id?: string
+    role?: string
+    permissions?: string[]
+    provider?: string
+  }
+}
+// declare module "next-auth/jwt" {
+//   interface JWT {
+//     accessToken?: string
+//     id?: string
+//     role?: string
+//     permissions?: string[]
+//     provider?: string
+//   }
+// }
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: !!process.env.AUTH_DEBUG,
   theme: { logo: "https://authjs.dev/img/logo-sm.png" },
@@ -112,35 +130,70 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     async signIn({ user, account, profile }) {
+     
       if (!user.email) return false
-
-      try {
+      try {     
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
-          include: { accounts: true },
+          include: {
+            accounts:true,
+            role: {
+              include: { permissions: true }
+            }
+          }
         })
-
+        console.log("user email",user?.email)
         // For new users, set default role and permissions
         if (!existingUser) {
-          const defaultRole = "USER"
-          const defaultPermissions = setPermissions(ROLES[defaultRole])
-          
+          const defaultRole = await prisma.role.findUnique({
+            where: { name: 'USER' },
+            include: { permissions: true }
+          }) 
+          console.log("Not existingUser",existingUser?.email)
+console.log("Default Role",defaultRole)
+          if (!defaultRole) return false
           // Create new user with string permissions
           await prisma.user.create({
             data: {
               email: user.email,
               name: user.name,
               image: user.image,
-              role: defaultRole,
-              permissions: defaultPermissions,
+              roleId: defaultRole.id,
+              accounts: {
+                create: {
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  refresh_token: account.refresh_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                  session_state: account.session_state,
+                }
+              }
+             // permissions: defaultPermissions,
             },
           })
-          
-          user.role = defaultRole
-          user.permissions = defaultPermissions
+          user.role = defaultRole.name
+          user.permissions = getPermissionNames(defaultRole.permissions)
+          return true
         } else {
+           //User exists, check if this OAuth account is already linked
+      const existingAccount = existingUser.accounts.find(
+        acc => acc.provider === account.provider && 
+              acc.providerAccountId === account.providerAccountId
+      )
+      if (existingAccount) {
+        // Account already linked, just update user properties
+        user.role = existingUser.role.name
+        user.permissions = getPermissionNames(existingUser.role.permissions)
+        return true
+      }
+
           // For existing users, link new provider
-          if (account && !existingUser.accounts.some(acc => acc.provider === account.provider)) {
+      //   if (account && !existingUser.accounts.some(acc => acc.provider === account.provider)) {
             await prisma.account.create({
               data: {
                 userId: existingUser.id,
@@ -156,12 +209,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session_state: account.session_state,
               },
             })
-          }
+        //  }
           
-          user.role = existingUser.role
-          user.permissions = existingUser.permissions
-        }
-        return true
+          user.role = existingUser.role.name
+          user.permissions = getPermissionNames(existingUser.role.permissions)
+      
+         }
+         return true
       } catch (error) {
         console.error("Error in signIn callback:", error)
         return false
@@ -172,18 +226,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (pathname === "/middleware-example") return !!auth
       return true
     },
-    jwt({ token,user }) {
+   async jwt({ token,user }) {
       // if (trigger === "update") token.name = session.user.name
       // if (account?.provider === "keycloak") {
       //   return { ...token, accessToken: account.access_token }
       // }
-      if (user) {
-        token.role = user.role
-        token.permissions = getPermissions(user.permissions)
-      }
+      // if (user) {
+      //   token.role = user.role
+      //   token.permissions = getPermissions(user.permissions)
+      // }
       // if (account) {
       //   token.provider = account.provider
       // }
+      if (user) {
+        const userWithRole = await prisma.user.findUnique({
+          where: { id: user.id },
+          include: {
+            role: {
+              include: { permissions: true }
+            }
+          }
+        })
+
+        if (userWithRole?.role) {
+          token.roleId = userWithRole.role.roleId
+          token.role = userWithRole.role.name
+          token.permissions = getPermissionNames(userWithRole.role.permissions)
+        }
+      }
       return token
     },
     async session({ session, token }) {
@@ -191,6 +261,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         ...session,
         user: {
           ...session.user,
+          //role:  token.roleId,
           role: token.role,
           permissions: token.permissions,
          // provider: token.provider
@@ -202,12 +273,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 })
 
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    accessToken?: string
-    id?: string
-    role?: string
-    permissions?: string[]
-    provider?: string
-  }
-}
+

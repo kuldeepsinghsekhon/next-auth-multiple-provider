@@ -4,6 +4,7 @@ export type PermissionCategory =
   | 'roles'
   | 'users'
   | 'permissions'
+  | 'blog'
 
 export interface Permission {
   id: string

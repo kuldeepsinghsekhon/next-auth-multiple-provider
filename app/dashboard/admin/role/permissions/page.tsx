@@ -4,19 +4,24 @@ import { RolesTable } from "../roles-table"
 import { PermissionsTable } from "../permission-table"
 import { CreateRoleButton } from "../create-role-button"
 import type { Role, Permission } from "@/types/role-permissions"
+import { ResetPermissionsButton } from "@/components/admin/permission/reset-permission-button"
 
 export default async function RolesPage() {
-  const [roles, permissions] = await Promise.all([
+  const [rolesResponse, permissionsResponse] = await Promise.all([
     getRoles(),
     getPermissions()
-  ]) as [Role[], Permission[]]
+  ]);
+
+ // const roles = rolesResponse.data as Role[];
+  const permissions = permissionsResponse.permissions as Permission[];
 
   return (
     <div className="p-6 space-y-6">
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Permissions</h2>
-        <PermissionsTable permissions={permissions} />
-      </div>
+    <div className="flex justify-between items-center">
+      <h2 className="text-xl font-semibold">Permissions</h2>
+      <ResetPermissionsButton />
     </div>
+    <PermissionsTable permissions={permissions} />
+  </div>
   )
 }

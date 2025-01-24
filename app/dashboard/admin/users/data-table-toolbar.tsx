@@ -11,11 +11,10 @@ interface DataTableToolbarProps {
   baseUrl: string
 }
 
-export function DataTableToolbar({ roles, baseUrl }: DataTableToolbarProps) {
+export async function  DataTableToolbar({ roles, baseUrl }: DataTableToolbarProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-
+  const searchParams =await useSearchParams()
   const handleSearch = (value: string) => {
     const query = createQueryString(
       { search: value || null },
@@ -31,7 +30,9 @@ export function DataTableToolbar({ roles, baseUrl }: DataTableToolbarProps) {
     )
     router.push(`${baseUrl}?${query}`)
   }
-
+  {roles?.roles?.map((role) => (
+     console.log(role?.name)
+  ))}
   return (
     <div className="flex items-center justify-between mb-4">
       <Input
@@ -49,9 +50,9 @@ export function DataTableToolbar({ roles, baseUrl }: DataTableToolbarProps) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="">All roles</SelectItem>
-          {roles.map((role) => (
+          {roles?.roles?.map((role) => (
             <SelectItem key={role.id} value={role.id}>
-              {role.name}
+              {role?.name}
             </SelectItem>
           ))}
         </SelectContent>

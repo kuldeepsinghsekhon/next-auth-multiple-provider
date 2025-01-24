@@ -10,6 +10,7 @@ const PERMISSIONS_BY_CATEGORY: Record<PermissionCategory, string[]> = {
     'delete:product',
     'edit:own:product',
     'delete:own:product'
+    
   ],
   roles: [
     'view:roles',
@@ -30,9 +31,22 @@ const PERMISSIONS_BY_CATEGORY: Record<PermissionCategory, string[]> = {
     'view:permissions',
     'create:permission',
     'edit:permission',
+    'manage:permission',
     'delete:permission',
     'edit:own:permission',
     'delete:own:permission'
+  ],
+  blog: [
+    'view:blog',
+    'create:blog',
+    'edit:blog',
+    'delete:blog',
+    'edit:own:blog',
+    'delete:own:blog',
+    'publish:blog',
+    'unpublish:blog',
+    'manage:categories',
+    'manage:tags'
   ]
 }
 

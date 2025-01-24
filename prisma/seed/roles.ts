@@ -16,7 +16,8 @@ const DEFAULT_ROLES = {
       'view:users',
       'edit:user',
       'view:roles',
-      'view:permissions'
+      'view:permissions',
+      ...PERMISSIONS_BY_CATEGORY.blog,
     ]
   },
   MANAGER: {

@@ -1,46 +1,56 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DataTableToolbar } from "./data-table-toolbar"
-import { UsersTable } from "./users-table"
+import { useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { PlusCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { UsersTable } from './users-table'
+import { DataTableToolbar } from './data-table-toolbar'
+import type { User, Role } from '@prisma/client'
 
 interface UsersClientProps {
   initialData: {
-    users: any[]
-    roles: any[]
+    users: User[]
+    roles: Role[]
     total: number
     pageCount: number
     currentPage: number
-    validatedParams: any
   }
   baseUrl: string
   searchParams: Record<string, string | undefined>
 }
 
-export function UsersClient({
-  initialData,
-  baseUrl,
-  searchParams
-}: UsersClientProps) {
+export function UsersClient({ initialData, baseUrl, searchParams }: UsersClientProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Users Management</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <DataTableToolbar 
-          roles={initialData.roles} 
-          baseUrl={baseUrl}
-        />
+    <Tabs defaultValue="all">
+      <div className="flex items-center justify-between">
+        <TabsList>
+          <TabsTrigger value="all">All Users</TabsTrigger>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="blocked">Blocked</TabsTrigger>
+        </TabsList>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            className="h-8 gap-1"
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span className="sr-only sm:not-sr-only">Add User</span>
+          </Button>
+        </div>
+      </div>
+
+      <TabsContent value="all" className="mt-4">
+        <DataTableToolbar roles={initialData.roles} baseUrl={baseUrl} />
         <UsersTable 
           users={initialData.users}
           roles={initialData.roles}
-          pageCount={initialData.pageCount}
           currentPage={initialData.currentPage}
+          pageCount={initialData.pageCount}
           baseUrl={baseUrl}
           searchParams={searchParams}
         />
-      </CardContent>
-    </Card>
+      </TabsContent>
+    </Tabs>
   )
 }

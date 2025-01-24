@@ -3,53 +3,45 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 
-interface GetUsersParams {
-  page: number
-  perPage: number
-  sort: string
-  search?: string
-  role?: string
-}
-
-export async function getUsers({
-  page,
-  perPage,
-  sort,
-  search,
-  role
-}: GetUsersParams) {
-  const [sortField, sortOrder] = sort.split(':')
+export async function getUsers(
+  search = '',
+  page = 1,
+  limit = 10,
+  status?: string,
+    sort = 'availableAt',
+  order: 'asc' | 'desc' = 'desc'
+) {
+  const skip = Math.max(0, (page - 1) * limit)
   
   const where = {
     AND: [
       search ? {
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } }
+          { name: { contains: search } }
         ]
       } : {},
-      role ? { roleId: role } : {}
+      status && status !== 'all' ? { status } : {}
     ]
   }
 
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       where,
-      include: {
-        role: {
-          include: { 
-            permissions: true 
-          }
-        }
-      },
-      orderBy: { [sortField]: sortOrder.toLowerCase() },
-      skip: (page - 1) * perPage,
-      take: perPage
-    }),
-    prisma.user.count({ where })
+      skip,
+      take: limit,
+      include: { role: true },
+      orderBy: { [sort]: order }
+    }
+
+  ),
+    prisma.product.count({ where })
   ])
 
-  return { users, total }
+  return {
+    users,
+    totalPages: Math.ceil(total / limit),
+    total
+  }
 }
 
 export async function updateUserRole(userId: string, roleId: string) {

@@ -4,47 +4,41 @@ import { getUsers } from "@/actions/users"
 import { getRoles } from "@/actions/roles"
 import { UsersClient } from "./users-client"
 import { unstable_noStore as noStore } from "next/cache"
-
-async function fetchData(params: SearchParamsType) {
-  noStore()
-  
-  const validatedParams = validateSearchParams(params)
-  
-  const [{ users, total }, roles] = await Promise.all([
-    getUsers(validatedParams),
-    getRoles()
-  ])
-
-  return {
-    users,
-    roles,
-    total,
-    pageCount: Math.ceil(total / validatedParams.perPage),
-    currentPage: validatedParams.page,
-    validatedParams
-  }
-}
-
 export default async function UsersPage({
-  searchParams
+  searchParams,
 }: {
-  searchParams: SearchParamsType
+  searchParams: { 
+    q?: string
+    page?: string
+    status?: string
+    limit?: string
+    sort?: string
+    order?: string 
+  }
 }) {
-  const data = await fetchData({
-    page: searchParams.page,
-    perPage: searchParams.perPage,
-    sort: searchParams.sort,
-    search: searchParams.search,
-    role: searchParams.role
-  })
+  const search = searchParams.q ?? ''
+  const page = Math.max(1, Number(searchParams.page) || 1)
+  const limit = Number(searchParams.limit) || 10
+  const status = searchParams.status
+  const sort = searchParams.sort || 'availableAt'
+  const order = (searchParams.order as 'asc' | 'desc') || 'desc'
+
+  const { users, totalPages, total } = await getUsers(
+    search,
+    page,
+    limit,
+    status,
+    sort,
+    order
+  )
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <UsersClient 
-        initialData={data}
-        baseUrl="/dashboard/admin/users"
-        searchParams={searchParams}
-      />
-    </Suspense>
+    <UsersClient
+      users={products}
+      currentPage={page}
+      totalPages={totalPages}
+      totalItems={total}
+      searchParams={searchParams}
+    />
   )
 }

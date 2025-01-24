@@ -45,3 +45,17 @@
     @apply bg-background text-foreground;
   }
 }
+@layer components {
+  .prose pre {
+    @apply p-0 m-0 bg-transparent;
+  }
+  
+  .prose code {
+    @apply font-mono text-sm leading-relaxed;
+  }
+  
+  .prose code[class*="language-"],
+  .prose pre[class*="language-"] {
+    @apply text-zinc-50 bg-zinc-900;
+  }
+}

@@ -13,12 +13,13 @@ export default async function ProductsPage({
     order?: string 
   }
 }) {
-  const search = searchParams.q ?? ''
-  const page = Math.max(1, Number(searchParams.page) || 1)
-  const limit = Number(searchParams.limit) || 10
-  const status = searchParams.status
-  const sort = searchParams.sort || 'availableAt'
-  const order = (searchParams.order as 'asc' | 'desc') || 'desc'
+  const searchParam = await searchParams;
+  const search = searchParam.q ?? ''
+  const page = Math.max(1, Number(searchParam.page) || 1)
+  const limit = Number(searchParam.limit) || 10
+  const status = searchParam.status
+  const sort = searchParam.sort || 'availableAt'
+  const order = (searchParam.order as 'asc' | 'desc') || 'desc'
 
   const { products, totalPages, total } = await getProducts(
     search,
@@ -35,7 +36,7 @@ export default async function ProductsPage({
       currentPage={page}
       totalPages={totalPages}
       totalItems={total}
-      searchParams={searchParams}
+      searchParams={searchParam}
     />
   )
 }

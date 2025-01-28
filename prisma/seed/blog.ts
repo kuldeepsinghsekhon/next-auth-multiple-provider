@@ -25,10 +25,13 @@ export async function seedBlog(prisma: PrismaClient) {
       })
     )
   )
-
+  console.log('🌱 Get default author (first admin user)')
   // Get default author (first admin user)
   const author = await prisma.user.findFirst({
-    where: { role: { name: 'ADMIN' } }
+    where: { role: { name: 'ADMIN' } },
+    include: {
+      role: true
+    }
   })
 
   if (!author) throw new Error('No admin user found')

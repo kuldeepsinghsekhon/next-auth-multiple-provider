@@ -47,6 +47,16 @@ const PERMISSIONS_BY_CATEGORY: Record<PermissionCategory, string[]> = {
     'unpublish:blog',
     'manage:categories',
     'manage:tags'
+  ],
+  courses: [
+    'view:course',
+    'create:course',
+    'edit:course',
+    'delete:course',
+    'edit:own:course',
+    'delete:own:course',
+    'publish:course',
+    'unpublish:course'
   ]
 }
 

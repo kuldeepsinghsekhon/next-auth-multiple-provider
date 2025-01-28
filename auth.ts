@@ -187,6 +187,7 @@ console.log("Default Role",defaultRole)
       )
       if (existingAccount) {
         // Account already linked, just update user properties
+        user.id = existingUser.id
         user.role = existingUser.role.name
         user.permissions = getPermissionNames(existingUser.role.permissions)
         return true
@@ -210,7 +211,7 @@ console.log("Default Role",defaultRole)
               },
             })
         //  }
-          
+        user.id = existingUser.id
           user.role = existingUser.role.name
           user.permissions = getPermissionNames(existingUser.role.permissions)
       
@@ -249,6 +250,7 @@ console.log("Default Role",defaultRole)
         })
 
         if (userWithRole?.role) {
+          token.id = userWithRole.id
           token.roleId = userWithRole.role.roleId
           token.role = userWithRole.role.name
           token.permissions = getPermissionNames(userWithRole.role.permissions)
@@ -263,6 +265,7 @@ console.log("Default Role",defaultRole)
           ...session.user,
           //role:  token.roleId,
           role: token.role,
+          id: token.id,
           permissions: token.permissions,
          // provider: token.provider
         },

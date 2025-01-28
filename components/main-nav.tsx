@@ -60,6 +60,27 @@ export function MainNav() {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              href="/course"
+              className={navigationMenuTriggerStyle()}
+            >
+              Courses
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              href="/blog"
+              className={navigationMenuTriggerStyle()}
+            >
+              Blog
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          {/* ...existing navigation items... */}
+        </NavigationMenuList>
+      </NavigationMenu>
     </div>
   )
 }

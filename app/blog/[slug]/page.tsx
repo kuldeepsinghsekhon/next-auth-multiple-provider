@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-  const post = await getBlogPost(params.slug).catch(() => null)
+  const {slug}= await params
+  const post = await getBlogPost(slug).catch(() => null)
 
   if (!post) {
     notFound()

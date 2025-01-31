@@ -35,22 +35,25 @@ export async function createBlogPost(data: {
   videoUrl?: string
   categoryIds: string[]
   tagIds: string[]
+  published?: boolean
 }) {
   return withAuth(
     'create:blog',
     async () => {
       const session = await auth()
       
+      const { categoryIds, tagIds, ...postData } = data
+
       const post = await prisma.blogPost.create({
         data: {
-          ...data,
+          ...postData,
           slug: slugify(data.title, { lower: true }),
           authorId: session!.user.id,
           categories: {
-            connect: data.categoryIds.map(id => ({ id }))
+            connect: categoryIds.map(id => ({ id }))
           },
           tags: {
-            connect: data.tagIds.map(id => ({ id }))
+            connect: tagIds.map(id => ({ id }))
           }
         }
       })
@@ -60,7 +63,6 @@ export async function createBlogPost(data: {
     }
   )
 }
-
 export async function getBlogPosts() {
   return withAuth(
     'view:blog',

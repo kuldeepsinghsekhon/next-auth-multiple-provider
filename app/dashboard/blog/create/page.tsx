@@ -1,3 +1,4 @@
+'use server'
 import { BlogForm } from '../components/blog-form'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'

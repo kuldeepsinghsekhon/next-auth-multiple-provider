@@ -31,6 +31,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <article className="container py-6">
+      
       <Suspense fallback={<div>Loading post...</div>}>
         <BlogPostContent post={post} />
       </Suspense>

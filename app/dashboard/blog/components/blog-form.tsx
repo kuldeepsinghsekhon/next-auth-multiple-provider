@@ -55,10 +55,10 @@ export function BlogForm({ post }: BlogFormProps) {
       content: post?.content || '',
       excerpt: post?.excerpt || '',
       coverImage: post?.coverImage || '',
+      videoUrl: post?.videoUrl || '',
       published: post?.published || false,
-      categoryIds: [],
+      categoryIds: post?.categories?.map(c => c.id) || [],
       tagIds: post?.tags?.map(t => t.id) || []
-
     }
   })
   useEffect(() => {

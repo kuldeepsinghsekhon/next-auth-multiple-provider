@@ -1,5 +1,5 @@
 import { BlogEditor } from './components/editor-content'
-import { EditorHeader } from './components/editor-header'
+//import { EditorHeader } from './components/editor-header'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 

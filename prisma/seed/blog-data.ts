@@ -202,3 +202,30 @@ export const BLOG_CATEGORIES = [
       }
     // ... more sample posts
   ]
+  export const SAMPLE_COMMENTS = [
+    {
+      content: "Great introduction to Next.js! Very helpful for beginners.",
+      replies: [
+        {
+          content: "Totally agree! The examples are very clear.",
+        },
+        {
+          content: "Would love to see more advanced topics covered.",
+        }
+      ]
+    },
+    {
+      content: "This helped me understand the new app router better.",
+      replies: [
+        {
+          content: "The routing examples are particularly useful.",
+        }
+      ]
+    }
+  ]
+  export const SAMPLE_REACTIONS = [
+  { type: 'CLAP' },
+  { type: 'LOVE' },
+  { type: 'CELEBRATE' },
+  { type: 'INSIGHTFUL' }
+]

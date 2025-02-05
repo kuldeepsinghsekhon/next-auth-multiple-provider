@@ -1,5 +1,5 @@
-import Header from '../../../components/Header'
-import { AddressBook } from '../../../components/employee/AddressBook'
+import Header from '@/app/hrm/header'
+import { AddressBook } from '../../add/AddressBook'
 
 export default function EmployeeAddressBookPage({ params }: { params: { id: string } }) {
   // In a real application, you would fetch the employee data based on the ID

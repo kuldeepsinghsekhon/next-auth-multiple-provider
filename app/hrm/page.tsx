@@ -1,7 +1,7 @@
-import Header from '@/components/hrm/header'
-import MetricsOverview from '@/components/hrm/MetricsOverview'
-import EmployeeList from '@/components/hrm/EmployeeList'
-import QuickActions from '@/components/hrm/QuickActions'
+import Header from '@/app/hrm/header'
+import MetricsOverview from '@/app/hrm/MetricsOverview'
+import EmployeeList from '@/app/hrm/EmployeeList'
+import QuickActions from '@/app/hrm/QuickActions'
 
 export default function Dashboard() {
   return (

@@ -31,6 +31,8 @@ model User {
   submissions      Submission[]
   role             Role            @relation(fields: [roleId], references: [id])
  lessonCompletions LessonCompletion[]
+ comments    Comment[]
+  reactions     Reaction[]
   @@index([roleId])
 }
 
@@ -134,7 +136,10 @@ model BlogPost {
   author      User       @relation("UserPosts", fields: [authorId], references: [id])
   categories  Category[] @relation("BlogPostToCategory")
   tags        Tag[]      @relation("BlogPostToTag")
-
+  comments    Comment[]
+  reactions  Reaction[]
+  reactionCounts String @default("{}")
+  views Int  @default(0)
   @@index([authorId])
   @@index([slug])
 }
@@ -162,7 +167,44 @@ model Tag {
 
   @@index([slug])
 }
+model Comment {
+  id        String    @id @default(cuid())
+  content   String    
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  post      BlogPost  @relation(fields: [postId], references: [id])
+  postId    String
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  parentId  String?
+  replies   Comment[] @relation("CommentReplies")
 
+  @@index([postId])
+  @@index([authorId])
+}
+
+enum ReactionType {
+  CLAP
+  LOVE
+  CELEBRATE
+  INSIGHTFUL
+}
+
+model Reaction {
+  id        String       @id @default(cuid())
+  type      String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  post      BlogPost     @relation(fields: [postId], references: [id])
+  postId    String
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@unique([postId, userId, type])
+  @@index([postId])
+  @@index([userId])
+}
 model Course {
   id            String         @id @default(cuid())
   title         String

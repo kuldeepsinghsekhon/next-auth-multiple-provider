@@ -26,8 +26,7 @@ export function ProductsClient({
     totalItems,
     searchParams
 }: ProductsClientProps) {
-    const [addProductOpen, setAddProductOpen] = useState(false)
-console.log('products',products)    
+    const [addProductOpen, setAddProductOpen] = useState(false)  
     return (
         <Tabs defaultValue="all">
             <div className="flex items-center justify-between">

@@ -2,18 +2,37 @@ import { Suspense } from 'react'
 import { getBlogPosts } from '@/actions/blog'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { BlogTable } from './components/blog-table'
+import  {BlogTable}  from './components/blog-table'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-
-export default async function BlogPage() {
+  export default async function BlogPage({
+    searchParams,
+  }: {
+    searchParams: { [key: string]: string | undefined }
+  }) {
+    const searchParam = await searchParams;
+     const search = searchParam.q ?? ''
+     const page = Math.max(1, Number(searchParam.page) || 1)
+     const limit = Number(searchParam.limit) || 10
+     const status = searchParam.status
+     const sort = searchParam.sort || 'updatedAt'
+     const order = (searchParam.order as 'asc' | 'desc') || 'desc'
+  
   const session = await auth()
   
   if (!session?.user) {
     redirect('/auth/signin')
   }
 
-  const posts = await getBlogPosts()
+   const {posts,currentPage,totalPages,total} = await getBlogPosts(
+     search,
+     page,
+     limit,
+    status,
+     sort,
+     order
+  //
+   )
 
   return (
     <div className="container py-6">
@@ -25,7 +44,7 @@ export default async function BlogPage() {
       </div>
 
       <Suspense fallback={<div>Loading posts...</div>}>
-        <BlogTable posts={posts} />
+      <BlogTable  posts={posts}     />
       </Suspense>
     </div>
   )

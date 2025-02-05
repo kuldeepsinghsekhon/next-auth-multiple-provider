@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableBody,
   Table
-} from '@/components/ui/table';
+} from '@/components/ui/table-advance';
 import {
   Card,
   CardContent,
@@ -84,7 +84,8 @@ export function ProductsTable({
               <SortHeader field="status">Status</SortHeader>
               <SortHeader field="price">Price</SortHeader>
               <SortHeader field="stock">Stock</SortHeader>
-              <SortHeader field="availableAt">Created At</SortHeader>              <TableHead>
+              <SortHeader field="availableAt">Created At</SortHeader>       
+                <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>

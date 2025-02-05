@@ -1,5 +1,5 @@
 import { ReadonlyURLSearchParams } from 'next/navigation'
-
+import { BlogSearchParams } from '../blog/types'
 export function createQueryString(
     params: Record<string, string | null>,
     searchParams: URLSearchParams
@@ -32,12 +32,15 @@ export function createQueryString(
     role: string
   }
   
-  export function validateSearchParams(params: SearchParamsType): ValidatedParams {
+
+  export function getValidatedSearchParams(searchParams: Record<string, string | string[] | undefined>): BlogSearchParams {
     return {
-      page: Math.max(1, Number(params?.page) || 1),
-      perPage: Math.max(1, Number(params?.perPage) || 10),
-      sort: params?.sort || 'createdAt:desc',
-      search: params?.search || '',
-      role: params?.role || ''
+      q: String(searchParams?.q || ''),
+      page: Number(searchParams?.page || 1),
+      category: String(searchParams?.category || ''),
+      tag: String(searchParams?.tag || ''),
+      sort: (searchParams?.sort as BlogSearchParams['sort']) || 'createdAt',
+      order: (searchParams?.order as 'asc' | 'desc') || 'desc',
+      status: (searchParams?.status as BlogSearchParams['status']) || 'published'
     }
   }

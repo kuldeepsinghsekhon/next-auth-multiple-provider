@@ -2,19 +2,19 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Header from '@/components/hrm/header'
+import Header from '@/app/hrm/header'
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PersonalInformation } from '@/components/hrm/employee/edit/PersonalInformation'
-import { ContractInformation } from '@/components/hrm/employee/edit/ContractInformation'
-import { VisaAndDocuments } from '@/components/hrm/employee/edit/VisaAndDocuments'
-import { FamilyAndEmergency } from'@/components/hrm/employee/edit/FamilyAndEmergency'
-import { EmployeePayroll } from '@/components/hrm/employee/edit/EmployeePayroll'
-import { AddressBook } from '@/components/hrm/employee/edit/AddressBook'
-import { QualificationsTraining } from '@/components/hrm/employee/edit/QualificationsTraining'
-import { LeaveManagement } from '@/components/hrm/employee/edit/LeaveManagement'
-import { BusinessTravel } from '@/components/hrm/employee/edit/BusinessTravel'
-import { AssetManagement } from '@/components/hrm/employee/edit/AssetManagement'
+import { PersonalInformation } from './PersonalInformation'
+import { ContractInformation } from './ContractInformation'
+import { VisaAndDocuments } from './VisaAndDocuments'
+import { FamilyAndEmergency } from'./FamilyAndEmergency'
+import { EmployeePayroll } from './EmployeePayroll'
+import { AddressBook } from './AddressBook'
+import { QualificationsTraining } from './QualificationsTraining'
+import { LeaveManagement } from './LeaveManagement'
+import { BusinessTravel } from './BusinessTravel'
+import { AssetManagement } from './AssetManagement'
 import { PlusCircle } from 'lucide-react'
 
 export default function AddEmployeePage() {

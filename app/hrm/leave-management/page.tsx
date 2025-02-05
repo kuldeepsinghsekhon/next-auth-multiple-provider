@@ -1,9 +1,9 @@
-import Header from '@/components/hrm/header'
+import Header from '@/app/hrm/header'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 import { Calendar, ClipboardList, FileText } from 'lucide-react'
-import LeaveRequestList from '@/components/hrm/LeaveRequestList'
+import LeaveRequestList from '@/app/hrm/LeaveRequestList'
 
 export default function LeaveManagementPage() {
   return (

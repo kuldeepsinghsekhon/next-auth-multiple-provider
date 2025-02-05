@@ -1,52 +1,63 @@
 'use client'
-
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatDistanceToNow } from "date-fns"
-import Link from "next/link"
-import type { BlogPost, User, Category, Tag } from "@prisma/client"
-
-interface BlogPostWithRelations extends BlogPost {
-  author: User
-  categories: Category[]
-  tags: Tag[]
-}
-
+import { BlogCard } from './blog-card'
+import { Button } from '@/components/ui/button'
 interface BlogListProps {
-  posts: BlogPostWithRelations[]
+  posts: any[]
+  hasMore: boolean
+  total: number
+  page: number
+  totalPages: number
 }
+import { useCallback } from 'react';
+import { useRouter,usePathname,useSearchParams } from 'next/navigation';
 
-export function BlogList({ posts }: BlogListProps) {
+export function BlogList({ posts,page,totalPages,total }: BlogListProps) {
+   const searchParams = useSearchParams()
+   const router = useRouter()
+   const createQueryString = useCallback(
+     (name: string, value: string) => {
+       const params = new URLSearchParams(searchParams)
+       params.set(name, value)
+       return params.toString()
+     },
+     [searchParams]
+   )
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {posts.map((post) => (
-        <Card key={post.id}>
-          {post.coverImage && (
-            <img 
-              src={post.coverImage} 
-              alt={post.title}
-              className="w-full h-48 object-cover"
-            />
-          )}
-          <CardHeader>
-            <CardTitle>
-              <Link href={`/blog/${post.slug}`}>
-                {post.title}
-              </Link>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">{post.excerpt}</p>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <div className="text-sm text-muted-foreground">
-              By {post.author.name}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-            </div>
-          </CardFooter>
-        </Card>
+        <BlogCard key={post.id} post={post} />
       ))}
+              <div className="flex w-full items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {posts.length} of {total} products
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => 
+                router.push(
+                  `${pathname}?${createQueryString('page', String(currentPage - 1))}`
+                )
+              }
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages}
+              onClick={() => 
+                router.push(
+                  `${pathname}?${createQueryString('page', String(currentPage + 1))}`
+                )
+              }
+            >
+              Next
+            </Button>
+          </div>
+        </div>
     </div>
   )
 }

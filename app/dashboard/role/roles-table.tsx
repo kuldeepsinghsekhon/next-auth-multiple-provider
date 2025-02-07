@@ -11,17 +11,21 @@ import {
 import { formatDistanceToNow } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import {RoleDialog as EditRoleDialog } from "./edit-role-dialog"
-
-export function RolesTable({ roles, permissions }) {
+import { ItemsSearch } from "@/components/Items-search"
+import { SortHeader } from "@/components/sort-header"
+import { Pagination } from "@/components/pagination"
+export function RolesTable({ roles, permissions,total,totalPages,currentPage }) {
   return (
+    <div>
+       <ItemsSearch/>
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
+          <SortHeader field="name">Name</SortHeader>
           <TableHead>Permissions</TableHead>
-          <TableHead>Created By</TableHead>
-          <TableHead>Created</TableHead>
-          <TableHead>Last Updated</TableHead>
+          <SortHeader field="createdby">Created By</SortHeader>
+          <SortHeader field="createdAt">Created</SortHeader>
+          <SortHeader field="updatedAt">Last Updated</SortHeader>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -49,5 +53,7 @@ export function RolesTable({ roles, permissions }) {
         ))}
       </TableBody>
     </Table>
+    <Pagination totalPages={totalPages} currentPage={currentPage} />
+    </div>
   )
 }

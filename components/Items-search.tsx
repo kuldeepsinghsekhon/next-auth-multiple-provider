@@ -12,7 +12,7 @@ export function ItemsSearch() {
     <div className="flex items-center gap-2 mb-4">
       <div className="relative">
         <Input
-          placeholder="Search products..."
+          placeholder="Search ..."
           value={searchTerm ?? ''}
           onChange={(e) => handleSearch(e.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"

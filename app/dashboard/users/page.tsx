@@ -1,9 +1,8 @@
-import { validateSearchParams, type SearchParamsType } from "@/lib/utils/search-params"
-import { Suspense } from 'react'
+
 import { getUsers } from "@/actions/users"
 import { getRoles } from "@/actions/roles"
 import { UsersClient } from "./users-client"
-import { unstable_noStore as noStore } from "next/cache"
+
 export default async function UsersPage({
   searchParams,
 }: {
@@ -20,7 +19,7 @@ export default async function UsersPage({
   const page = Math.max(1, Number(searchParams.page) || 1)
   const limit = Number(searchParams.limit) || 10
   const status = searchParams.status
-  const sort = searchParams.sort || 'availableAt'
+  const sort = searchParams.sort || 'createdAt'
   const order = (searchParams.order as 'asc' | 'desc') || 'desc'
 
   const { users, totalPages, total } = await getUsers(
@@ -31,13 +30,15 @@ export default async function UsersPage({
     sort,
     order
   )
+const {roles} =await getRoles();
 
   return (
     <UsersClient
-      users={products}
+      users={users}
+      roles={roles}
       currentPage={page}
-      totalPages={totalPages}
-      totalItems={total}
+      pageCount={totalPages}
+      total={total}
       searchParams={searchParams}
     />
   )

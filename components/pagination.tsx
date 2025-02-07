@@ -4,19 +4,19 @@ const PAGE_SIZES = [10, 25, 50, 100]
 export function Pagination({
   currentPage,
   totalPages,
-  pageSize,
-  onPageChange,
-  onPageSizeChange
+  //pageSize,
+ // onPageChange,
+ // onPageSizeChange
 }: {
   currentPage: number
   totalPages: number
-  pageSize: number
-  onPageChange: (page: number) => void
-  onPageSizeChange: (size: number) => void
+  //pageSize: number
+ // onPageChange: (page: number) => void
+ // onPageSizeChange: (size: number) => void
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         <p className="text-sm text-muted-foreground">Items per page</p>
         <Select
           value={String(pageSize)}
@@ -33,7 +33,7 @@ export function Pagination({
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
 
       <div className="flex items-center gap-2">
         <Button

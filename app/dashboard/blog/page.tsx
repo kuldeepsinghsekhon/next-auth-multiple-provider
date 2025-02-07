@@ -1,39 +1,41 @@
 import { Suspense } from 'react'
-import { getBlogPosts } from '@/actions/blog'
+import { getBlogPosts, getCategories, getTags } from '@/actions/blog'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import  {BlogTable}  from './components/blog-table'
+import { BlogTable } from './components/blog-table'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-  export default async function BlogPage({
-    searchParams,
-  }: {
-    searchParams: { [key: string]: string | undefined }
-  }) {
-    const searchParam = await searchParams;
-     const search = searchParam.q ?? ''
-     const page = Math.max(1, Number(searchParam.page) || 1)
-     const limit = Number(searchParam.limit) || 10
-     const status = searchParam.status
-     const sort = searchParam.sort || 'updatedAt'
-     const order = (searchParam.order as 'asc' | 'desc') || 'desc'
-  
+
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined }
+}) {
+  const searchParam = await searchParams;
+  const search = searchParam.q ?? ''
+  const page = Math.max(1, Number(searchParam.page) || 1)
+  const limit = Number(searchParam.limit) || 10
+  const status = searchParam.status
+  const sort = searchParam.sort || 'updatedAt'
+  const order = (searchParam.order as 'asc' | 'desc') || 'desc'
+
   const session = await auth()
-  
+
   if (!session?.user) {
     redirect('/auth/signin')
   }
 
-   const {posts,currentPage,totalPages,total} = await getBlogPosts(
-     search,
-     page,
-     limit,
+  const { posts, currentPage, totalPages, total } = await getBlogPosts(
+    search,
+    page,
+    limit,
     status,
-     sort,
-     order
-  //
-   )
-
+    sort,
+    order
+    //
+  )
+  const categories = await getCategories()
+  const tags = await getTags()
   return (
     <div className="container py-6">
       <div className="flex justify-between items-center mb-8">
@@ -44,7 +46,15 @@ import Link from 'next/link'
       </div>
 
       <Suspense fallback={<div>Loading posts...</div>}>
-      <BlogTable  posts={posts}     />
+
+        <BlogTable
+          pageSize={10}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={total}
+          posts={posts}
+          categories={categories}
+          tags={tags} />
       </Suspense>
     </div>
   )

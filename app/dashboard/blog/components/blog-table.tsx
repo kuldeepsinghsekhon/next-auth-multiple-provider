@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MoreHorizontal, ArrowUpDown, Download, Check, ChevronDown, Settings2 } from 'lucide-react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
-import { Pagination } from './pagination'
+import { Pagination } from '@/components/pagination'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,7 +64,8 @@ import { getCategories } from '@/actions/category'
 import { getTags } from '@/actions/tag'
 import { getBlogPosts } from '@/actions/blog'
 import { useLocalStorage } from "@/hooks/use-local-storage"
-
+import { ItemsSearch } from '@/components/Items-search'
+import { cn } from '@/lib/utils'
 const SORT_OPTIONS = [
   { label: 'Title', value: 'title' },
   { label: 'Most Recent', value: 'createdAt' },
@@ -126,7 +127,7 @@ export function BlogTable({
     'blog-table-columns',
     COLUMNS.reduce((acc, col) => ({ ...acc, [col.key]: col.defaultVisible }), {})
   )
-
+console.log('categories',categories)
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams)
@@ -181,27 +182,8 @@ export function BlogTable({
     router.push(`${pathname}?${params.toString()}`)
   }, [pathname, searchParams, router])
 
-  const { handleSort, sortField, sortOrder } = useSearch()
-  const SortHeader = ({ field, children }: { field: string, children: React.ReactNode }) => {
-    return (
+  const { sortField, sortOrder } = useSearch()
 
-      <TableHead
-        className="cursor-pointer hover:bg-gray-50"
-        onClick={() => handleSort(field)}
-      >
-        <div className="flex items-center gap-2">
-          {children}
-          <div className="w-4">
-            {sortField === field ? (
-              sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
-            ) : (
-              <ArrowUpDown className="h-4 w-4 opacity-50" />
-            )}
-          </div>
-        </div>
-      </TableHead>
-    )
-  }
 
   const updateFilters = useCallback((type: 'categories' | 'tags', values: string[]) => {
     const params = new URLSearchParams(searchParams)
@@ -217,12 +199,14 @@ export function BlogTable({
   return (
     <Card>
       <CardHeader>
+
         <CardTitle>Blogs</CardTitle>
         <CardDescription>
           Manage your products and view their sales performance.
         </CardDescription>
       </CardHeader>
       <CardContent>
+    <ItemsSearch/>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Input
@@ -246,6 +230,7 @@ export function BlogTable({
                 <SelectItem value="draft">Drafts</SelectItem>
               </SelectContent>
             </Select>
+ 
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="flex gap-2">
@@ -258,7 +243,9 @@ export function BlogTable({
                   <CommandInput placeholder="Search categories..." />
                   <CommandEmpty>No categories found.</CommandEmpty>
                   <CommandGroup>
+                 
                     {categories.map((category) => (
+                    
                       <CommandItem
                         key={category.id}
                         onSelect={() => {
@@ -576,6 +563,7 @@ export default async function BlogPage({
 
   return (
     <div className="container py-6">
+    
       <BlogTable
         posts={posts.posts}
         categories={categories}

@@ -4,7 +4,7 @@ import { RolesTable } from "../roles-table"
 import { PermissionsTable } from "../permission-table"
 import { CreateRoleButton } from "../create-role-button"
 import type { Role, Permission } from "@/types/role-permissions"
-import { ResetPermissionsButton } from "@/app/dashboard/admin/role/reset-permission-button"
+import { ResetPermissionsButton } from "../reset-permission-button"
 
 export default async function RolesPage() {
   const [rolesResponse, permissionsResponse] = await Promise.all([

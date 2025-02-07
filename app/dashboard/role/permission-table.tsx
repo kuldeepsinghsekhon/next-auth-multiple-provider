@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/table"
 import { formatDistanceToNow } from "date-fns"
 import type { Permission } from "@/types/role-permissions"
-
+import { ItemsSearch } from "@/components/Items-search"
 export function PermissionsTable({ permissions }: { permissions: Permission[] }) {
   return (
     <div className="rounded-md border">
+           <ItemsSearch/>
       <Table>
         <TableHeader>
           <TableRow>

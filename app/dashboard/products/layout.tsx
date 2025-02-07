@@ -29,7 +29,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { User } from './user';
 import { VercelLogo } from '@/components/ui/icons';
 import Providers from './providers';
-import { NavItem } from './nav-item';
+import { NavItem } from '../components/nav-item';
 import { SearchInput } from './search';
 import {auth} from '@/auth'
 import { SessionProvider } from "next-auth/react"

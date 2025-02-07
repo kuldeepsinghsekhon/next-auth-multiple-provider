@@ -20,7 +20,7 @@ import { useRouter,usePathname,useSearchParams } from 'next/navigation';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCallback } from 'react';
-
+import { SortHeader } from '@/components/sort-header';
 import { useSearch } from '@/hooks/use-search'
 export function ProductsTable({
   products,
@@ -45,26 +45,8 @@ export function ProductsTable({
     },
     [searchParams]
   )
-  const { handleSort, sortField, sortOrder } = useSearch()
-  const SortHeader = ({ field, children }: { field: string, children: React.ReactNode }) => {
-    return (
-      <TableHead 
-        className="cursor-pointer hover:bg-gray-50" 
-        onClick={() => handleSort(field)}
-      >
-        <div className="flex items-center gap-2">
-          {children}
-          <div className="w-4">
-            {sortField === field ? (
-              sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
-            ) : (
-              <ArrowUpDown className="h-4 w-4 opacity-50" />
-            )}
-          </div>
-        </div>
-      </TableHead>
-    )
-  }
+  const {  sortField, sortOrder } = useSearch()
+
   return (
     <Card>
       <CardHeader>

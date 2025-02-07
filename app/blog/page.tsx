@@ -3,6 +3,7 @@ import { BlogList } from './components/blog-list'
 import { BlogFilters } from './components/blog-filters'
 import { getBlogPosts } from '@/actions/blog'
 import { getCategories, getTags } from '@/actions/blog'
+import { ItemLimit } from './components/items-limit'
 //import type { BlogSearchParams } from './types'
 export interface BlogSearchParams {
   q: string
@@ -50,6 +51,7 @@ export default async function BlogPage({
         tags={tags}
         initialParams={searchParam}
       />
+            <ItemLimit/>
       <BlogList posts={posts} page={currentPage}  totalPages={totalPages} total ={total} />
     </div>
   )

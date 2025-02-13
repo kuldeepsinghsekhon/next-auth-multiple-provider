@@ -4,7 +4,7 @@ import { useState, useCallback, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MoreHorizontal, ArrowUpDown, Download, Check, ChevronDown, Settings2 } from 'lucide-react'
+import {  Download, Settings2, X } from 'lucide-react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/pagination'
@@ -16,7 +16,6 @@ import {
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu'
 import { BlogPost, Category, Tag } from '@prisma/client'
-import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 import {
   TableHead,
@@ -34,38 +33,15 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { ArrowUp, ArrowDown } from 'lucide-react';
 import { useSearch } from '@/hooks/use-search'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { toast } from "@/components/ui/use-toast"
 import { deleteBlogPost } from "@/actions/blog"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { getCategories } from '@/actions/category'
-import { getTags } from '@/actions/tag'
-import { getBlogPosts } from '@/actions/blog'
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { ItemsSearch } from '@/components/Items-search'
-import { cn } from '@/lib/utils'
+
+import MultiSelect from 'react-select'
+import { BlogTableRow } from './blog-table-row'
+import { DeleteDialog } from './delete-dialog'
+
 const SORT_OPTIONS = [
   { label: 'Title', value: 'title' },
   { label: 'Most Recent', value: 'createdAt' },
@@ -77,7 +53,6 @@ const SORT_OPTIONS = [
 const COLUMNS = [
   { key: 'title', label: 'Title', defaultVisible: true },
   { key: 'slug', label: 'slug', defaultVisible: true },
-
   { key: 'status', label: 'Status', defaultVisible: true },
   { key: 'categories', label: 'Categories', defaultVisible: true },
   { key: 'tags', label: 'Tags', defaultVisible: false },
@@ -97,18 +72,16 @@ interface BlogTableProps {
   totalItems: number
   pageSize: number
 }
+import Link from 'next/link'
 
-
-
-
-export function BlogTable({ 
-  posts, 
-  categories = [], 
-  tags = [], 
-  currentPage, 
-  totalPages, 
+export function BlogTable({
+  posts,
+  categories = [],
+  tags = [],
+  currentPage,
+  totalPages,
   totalItems,
-  pageSize 
+  pageSize
 }: BlogTableProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -123,11 +96,12 @@ export function BlogTable({
   const [selectedTags, setSelectedTags] = useState<string[]>(
     searchParams.get('tags')?.split(',').filter(Boolean) || []
   )
+  const { sortField, sortOrder ,currentLimit,handleSearch,handleLimit} = useSearch()
   const [visibleColumns, setVisibleColumns] = useLocalStorage(
     'blog-table-columns',
     COLUMNS.reduce((acc, col) => ({ ...acc, [col.key]: col.defaultVisible }), {})
   )
-console.log('categories',categories)
+
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams)
@@ -137,18 +111,6 @@ console.log('categories',categories)
     [searchParams]
   )
 
-  const handleSearch = useCallback(
-    (term: string) => {
-      setValue(term)
-      startTransition(() => {
-        const params = new URLSearchParams(searchParams)
-        params.set('q', term)
-        params.set('page', '1') // Reset to first page on search
-        router.push(`${pathname}?${params.toString()}`)
-      })
-    },
-    [pathname, router, searchParams]
-  )
   const handleDelete = async (id: string) => {
     try {
       setIsDeleting(true)
@@ -169,20 +131,6 @@ console.log('categories',categories)
       setPostToDelete(null)
     }
   }
-  const handlePageChange = useCallback((page: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set('page', String(page))
-    router.push(`${pathname}?${params.toString()}`)
-  }, [pathname, searchParams, router])
-
-  const handlePageSizeChange = useCallback((size: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set('limit', String(size))
-    params.set('page', '1')
-    router.push(`${pathname}?${params.toString()}`)
-  }, [pathname, searchParams, router])
-
-  const { sortField, sortOrder } = useSearch()
 
 
   const updateFilters = useCallback((type: 'categories' | 'tags', values: string[]) => {
@@ -196,24 +144,41 @@ console.log('categories',categories)
     router.push(`${pathname}?${params.toString()}`)
   }, [pathname, searchParams, router])
 
+  const categoryOptions = categories.map(category => ({
+    value: category.name,
+    label: category.name
+  }))
+
+  const tagOptions = tags.map(tag => ({
+    value: tag.name,
+    label: tag.name
+  }))
+
   return (
     <Card>
       <CardHeader>
+        <CardTitle>        
+                <div className="flex justify-between items-center mb-1">
+                Blogs
+                  <Button asChild>
+                    <Link href="/dashboard/blog/create">Create Post</Link>
+                  </Button>
+                </div>
+          </CardTitle>        
 
-        <CardTitle>Blogs</CardTitle>
         <CardDescription>
           Manage your products and view their sales performance.
         </CardDescription>
       </CardHeader>
       <CardContent>
-    <ItemsSearch/>
+
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Input
               placeholder="Search posts..."
               className="max-w-xs"
               value={value}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => handleSearch(e?.target?.value)}
             />
             <Select
               defaultValue={searchParams.get('status') ?? 'all'}
@@ -230,85 +195,31 @@ console.log('categories',categories)
                 <SelectItem value="draft">Drafts</SelectItem>
               </SelectContent>
             </Select>
- 
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="flex gap-2">
-                  Categories
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandInput placeholder="Search categories..." />
-                  <CommandEmpty>No categories found.</CommandEmpty>
-                  <CommandGroup>
-                 
-                    {categories.map((category) => (
-                    
-                      <CommandItem
-                        key={category.id}
-                        onSelect={() => {
-                          const newSelection = selectedCategories.includes(category.id)
-                            ? selectedCategories.filter(id => id !== category.id)
-                            : [...selectedCategories, category.id]
-                          setSelectedCategories(newSelection)
-                          updateFilters('categories', newSelection)
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedCategories.includes(category.id) 
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {category.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="flex gap-2">
-                  Tags
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandInput placeholder="Search tags..." />
-                  <CommandEmpty>No tags found.</CommandEmpty>
-                  <CommandGroup>
-                    {tags.map((tag) => (
-                      <CommandItem
-                        key={tag.id}
-                        onSelect={() => {
-                          const newSelection = selectedTags.includes(tag.id)
-                            ? selectedTags.filter(id => id !== tag.id)
-                            : [...selectedTags, tag.id]
-                          setSelectedTags(newSelection)
-                          updateFilters('tags', newSelection)
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedTags.includes(tag.id) 
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {tag.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+
+            <MultiSelect
+              isMulti
+              options={categoryOptions}
+              value={categoryOptions.filter(option => selectedCategories.includes(option.value))}
+              onChange={(options) => {
+                const values = options.map(option => option.value)
+                setSelectedCategories(values)
+                updateFilters('categories', values)
+              }}
+              placeholder="Select Categories"
+            />
+
+            <MultiSelect
+              isMulti
+              options={tagOptions}
+              value={tagOptions.filter(option => selectedTags.includes(option.value))}
+              onChange={(options) => {
+                const values = options.map(option => option.value)
+                setSelectedTags(values)
+                updateFilters('tags', values)
+              }}
+              placeholder="Select Tags"
+            />
+
             <Select
               value={searchParams.get('sort') || 'createdAt'}
               onValueChange={(value) => {
@@ -328,6 +239,21 @@ console.log('categories',categories)
                 ))}
               </SelectContent>
             </Select>
+            <Select
+        value={currentLimit}
+        onValueChange={handleLimit}
+        disabled={isPending}
+      >
+        <SelectTrigger className="w-[110px]">
+          <SelectValue placeholder="# per page" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="10">10 per page</SelectItem>
+          <SelectItem value="20">20 per page</SelectItem>
+          <SelectItem value="50">50 per page</SelectItem>
+          <SelectItem value="100">100 per page</SelectItem>
+        </SelectContent>
+      </Select>
             <Button
               variant="outline"
               onClick={() => handleExport()}
@@ -361,7 +287,7 @@ console.log('categories',categories)
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          {(selectedCategories.length > 0 || selectedTags.length > 0) && (
+          {/* {(selectedCategories.length > 0 || selectedTags.length > 0) && (
             <div className="flex flex-wrap gap-2">
               {selectedCategories.map(id => {
                 const category = categories.find(c => c.id === id)
@@ -404,7 +330,7 @@ console.log('categories',categories)
                 ) : null
               })}
             </div>
-          )}
+          )} */}
           {isPending ? (
             <div>Loading...</div>
           ) : (
@@ -412,7 +338,7 @@ console.log('categories',categories)
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {COLUMNS.map(column => 
+                    {COLUMNS.map(column =>
                       visibleColumns[column.key] && (
                         <TableHead key={column.key}>
                           {column.label}
@@ -423,156 +349,40 @@ console.log('categories',categories)
                 </TableHeader>
                 <TableBody>
                   {posts.map((post) => (
-                    <TableRow key={post.id}>
-                      {visibleColumns.title && (
-                        <TableCell>{post.title}</TableCell>
-                      )}
-                                            {visibleColumns.title && (
-                        <TableCell>{post.slug}</TableCell>
-                      )}
-                      {visibleColumns.status && (
-                        <TableCell>
-                          <Badge variant={post.published ? "success" : "warning"}>
-                            {post.published ? "Published" : "Draft"}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {visibleColumns.categories && (
-                        <TableCell>
-                          <div className="flex gap-1">
-                            {post.categories.map(cat => (
-                              <Badge key={cat.id} variant="outline">
-                                {cat.name}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                      )}
-                      {visibleColumns.tags && (
-                        <TableCell>
-                          <div className="flex gap-1">
-                            {post.tags.map(tag => (
-                              <Badge key={tag.id} variant="secondary">
-                                {tag.name}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                      )}
-                      {visibleColumns.views && (
-                        <TableCell>{post.views}</TableCell>
-                      )}
-                      {visibleColumns.comments && (
-                        <TableCell>{post._count?.comments || 0}</TableCell>
-                      )}
-                      {visibleColumns.reactions && (
-                        <TableCell>{post._count?.reactions || 0}</TableCell>
-                      )}
-                      {visibleColumns.createdAt && (
-                        <TableCell>{formatDate(post.createdAt, 'PP')}</TableCell>
-                      )}
-                      {visibleColumns.actions && (
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => router.push(`/dashboard/blog/edit/${post.id}`)}>
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setPostToDelete(post.id)}
-                                className="text-red-600"
-                              >
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      )}
-                    </TableRow>
+                    <BlogTableRow
+                      key={post.id}
+                      post={post}
+                      visibleColumns={visibleColumns}
+                      onDelete={setPostToDelete}
+                    />
                   ))}
                 </TableBody>
               </Table>
             </div>
           )}
         </div>
-        <AlertDialog open={!!postToDelete} onOpenChange={() => setPostToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the blog post
-                and all its associated data.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => postToDelete && handleDelete(postToDelete)}
-                className="bg-red-600 hover:bg-red-700"
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <DeleteDialog
+          open={!!postToDelete}
+          onClose={() => setPostToDelete(null)}
+          onConfirm={() => postToDelete && handleDelete(postToDelete)}
+          isDeleting={isDeleting}
+        />
       </CardContent>
       <CardFooter>
         <div className="flex w-full items-center justify-between">
           <p className="text-sm text-muted-foreground">
             Showing {posts.length} of {totalItems} posts
           </p>
-         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-        />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            // pageSize={pageSize}
+            // onPageChange={handlePageChange}
+            // onPageSizeChange={handlePageSizeChange}
+    
+         />
         </div>
       </CardFooter>
     </Card>
-  )
-}
-
-export default async function BlogPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | undefined }
-}) {
-  const page = Number(searchParams.page) || 1
-  const limit = Number(searchParams.limit) || 25
-  
-  const [posts, categories, tags] = await Promise.all([
-    getBlogPosts(
-      searchParams.q || '',
-      page,
-      limit,
-      searchParams.status,
-      searchParams.sort as SortField,
-      searchParams.order as SortOrder
-    ),
-    getCategories(),
-    getTags()
-  ])
-
-  return (
-    <div className="container py-6">
-    
-      <BlogTable
-        posts={posts.posts}
-        categories={categories}
-        tags={tags}
-        currentPage={posts.currentPage}
-        totalPages={posts.totalPages}
-        totalItems={posts.total}
-        pageSize={limit}
-      />
-    </div>
   )
 }

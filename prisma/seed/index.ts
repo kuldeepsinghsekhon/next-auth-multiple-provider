@@ -8,6 +8,7 @@ import { seedQuizzes } from './quiz'
 import { seedLessons } from './lessons'
 import { seedCategories } from './categories'
 import { seedTags } from './tags'
+import {seedAuthorProfiles} from './author'
 
 const prisma = new PrismaClient()
 
@@ -21,7 +22,7 @@ async function main() {
   await seedCourses(prisma)
   await seedLessons(prisma)
   await seedQuizzes(prisma)
-
+ await seedAuthorProfiles(prisma)
 }
 
 main()

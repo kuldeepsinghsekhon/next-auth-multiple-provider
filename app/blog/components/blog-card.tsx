@@ -20,7 +20,7 @@ export function BlogCard({ post }: BlogCardProps) {
   return (
     <Link href={`/blog/${post.slug}`}>
       <Card className="h-full overflow-hidden hover:shadow-md transition-shadow">
-        {post.coverImage && (
+        {post?.coverImage && (
           <div className="aspect-video w-full overflow-hidden">
             <img 
               src={post.coverImage} 
@@ -42,14 +42,14 @@ export function BlogCard({ post }: BlogCardProps) {
           </div>
           <CardTitle className="line-clamp-2">{post.title}</CardTitle>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {post.author.image && (
+            {post?.author?.image && (
               <img 
                 src={post.author.image}
                 alt={post.author.name ?? ''}
                 className="w-6 h-6 rounded-full"
               />
             )}
-            <span>{post.author.name}</span>
+            <span>{post?.author?.name}</span>
           </div>
         </CardHeader>
         <CardContent>

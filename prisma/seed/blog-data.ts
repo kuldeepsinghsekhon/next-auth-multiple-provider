@@ -15,7 +15,172 @@ export const BLOG_CATEGORIES = [
     { name: 'Best Practices', slug: 'best-practices' },
     { name: 'Performance', slug: 'performance' }
   ]
-  
+
+  export const AUTHOR_PROFILES = [
+    {
+      email: 'superadmin@example.com', // Placeholder for user email
+      fullName: 'Super Admin',
+      profilePhoto: 'https://example.com/photo-superadmin.jpg',
+      tagline: 'Leading the way in tech innovation.',
+      qualifications: 'MBA in Technology Management',
+      profession: 'Chief Technology Officer at TechCorp',
+      expertise: ['Leadership', 'Innovation', 'Tech Strategy'],
+      socialLinks: {
+        linkedin: 'https://linkedin.com/in/superadmin',
+        twitter: 'https://twitter.com/superadmin',
+        website: 'https://superadmin.com'
+      },
+      workExperience: [
+        {
+          company: 'TechCorp',
+          title: 'Chief Technology Officer',
+          duration: '2010-present',
+          industry: 'Tech',
+          achievements: ['Led company to IPO', 'Developed new tech strategy']
+        }
+      ],
+      education: [
+        {
+          institution: 'Harvard Business School',
+          degree: 'MBA',
+          field: 'Technology Management'
+        }
+      ],
+      skills: {
+        core: ['Leadership', 'Innovation'],
+        technical: ['Tech Strategy'],
+        soft: ['Public Speaking', 'Mentorship']
+      },
+      publications: {
+        books: ['Tech Leadership'],
+        guestPosts: ['https://example.com/guest-post-superadmin'],
+        talks: ['https://example.com/talk-superadmin']
+      },
+      personalBrand: {
+        mission: 'Driving tech innovation for a better future',
+        philosophy: 'Leading with vision and integrity'
+      },
+      contactInfo: {
+        freelance: false,
+        consultation: ['Tech Strategy Consulting'],
+        preferredMethod: 'LinkedIn'
+      },
+      additionalInfo: {
+        volunteerWork: ['Mentoring at tech bootcamps'],
+        hobbies: ['Travel', 'Photography'],
+        languages: ['English', 'French']
+      }
+    },
+    {
+      email: 'admin@example.com', // Placeholder for user email
+      fullName: 'Admin User',
+      profilePhoto: 'https://example.com/photo-admin.jpg',
+      tagline: 'Expert in software development and project management.',
+      qualifications: 'PhD in Computer Science',
+      profession: 'Senior Software Engineer at Google',
+      expertise: ['Cybersecurity', 'Renewable Energy', 'UX Design'],
+      socialLinks: {
+        linkedin: 'https://linkedin.com/in/adminuser',
+        twitter: 'https://twitter.com/adminuser',
+        website: 'https://adminuser.com'
+      },
+      workExperience: [
+        {
+          company: 'Google',
+          title: 'Senior Software Engineer',
+          duration: '2015-present',
+          industry: 'Tech',
+          achievements: ['Developed AI models', 'Led a team of 10 engineers']
+        }
+      ],
+      education: [
+        {
+          institution: 'MIT',
+          degree: 'PhD',
+          field: 'Computer Science'
+        }
+      ],
+      skills: {
+        core: ['Machine Learning', 'Content Marketing'],
+        technical: ['Python', 'React'],
+        soft: ['Public Speaking', 'Leadership']
+      },
+      publications: {
+        books: ['AI Ethics'],
+        guestPosts: ['https://example.com/guest-post-admin'],
+        talks: ['https://example.com/talk-admin']
+      },
+      personalBrand: {
+        mission: 'Empowering startups through ethical AI practices',
+        philosophy: 'Sharing knowledge on AI and ethics'
+      },
+      contactInfo: {
+        freelance: true,
+        consultation: ['Career coaching', 'Technical reviews'],
+        preferredMethod: 'Email'
+      },
+      additionalInfo: {
+        volunteerWork: ['Mentoring at coding bootcamps'],
+        hobbies: ['Travel', 'Photography'],
+        languages: ['English', 'Spanish']
+      }
+    },
+    {
+      email: 'testuser@example.com', // Placeholder for user email
+      fullName: 'Test User',
+      profilePhoto: 'https://example.com/photo-testuser.jpg',
+      tagline: 'Passionate about testing and quality assurance.',
+      qualifications: 'Certified QA Engineer',
+      profession: 'QA Engineer at TestCorp',
+      expertise: ['Automated Testing', 'Manual Testing', 'Quality Assurance'],
+      socialLinks: {
+        linkedin: 'https://linkedin.com/in/testuser',
+        twitter: 'https://twitter.com/testuser',
+        website: 'https://testuser.com'
+      },
+      workExperience: [
+        {
+          company: 'TestCorp',
+          title: 'QA Engineer',
+          duration: '2018-present',
+          industry: 'Tech',
+          achievements: ['Implemented automated testing framework', 'Reduced bugs by 30%']
+        }
+      ],
+      education: [
+        {
+          institution: 'Stanford University',
+          degree: 'BSc',
+          field: 'Computer Science'
+        }
+      ],
+      skills: {
+        core: ['Automated Testing', 'Manual Testing'],
+        technical: ['Selenium', 'JIRA'],
+        soft: ['Attention to Detail', 'Problem Solving']
+      },
+      publications: {
+        books: ['QA Best Practices'],
+        guestPosts: ['https://example.com/guest-post-testuser'],
+        talks: ['https://example.com/talk-testuser']
+      },
+      personalBrand: {
+        mission: 'Ensuring software quality through rigorous testing',
+        philosophy: 'Quality is not an act, it is a habit'
+      },
+      contactInfo: {
+        freelance: true,
+        consultation: ['QA Consulting'],
+        preferredMethod: 'Email'
+      },
+      additionalInfo: {
+        volunteerWork: ['Teaching coding to kids'],
+        hobbies: ['Gaming', 'Cooking'],
+        languages: ['English', 'German']
+      }
+    }
+  ]
+
   export const SAMPLE_POSTS = [
 
      {

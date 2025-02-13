@@ -48,7 +48,6 @@ export function UsersClient({ roles, users, total, currentPage, pageCount, searc
 
       <TabsContent value="all" className="mt-4">
         {/* <DataTableToolbar roles={roles}  /> */}
-        <ItemsSearch />
         <UsersTable
           users={users}
           roles={roles}

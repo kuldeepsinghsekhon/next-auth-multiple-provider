@@ -9,52 +9,57 @@ import Link from 'next/link'
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined }
+  searchParams: {
+    q?: string
+    page?: string
+    status?: string
+    limit?: string
+    sort?: string
+    order?: string
+    categories?: string
+    tags?: string
+  }
 }) {
-  const searchParam = await searchParams;
-  const search = searchParam.q ?? ''
-  const page = Math.max(1, Number(searchParam.page) || 1)
-  const limit = Number(searchParam.limit) || 10
-  const status = searchParam.status
-  const sort = searchParam.sort || 'updatedAt'
-  const order = (searchParam.order as 'asc' | 'desc') || 'desc'
-
+  const search = searchParams.q || ''
+  const page = Math.max(1, Number(searchParams.page) || 1)
+  const limit = Number(searchParams.limit) || 10
+  const status = searchParams.status
+  const sort = searchParams.sort || 'updatedAt'
+  const order = (searchParams.order as 'asc' | 'desc') || 'desc'
+  const categories = searchParams.categories?.split(',').filter(Boolean) || []
+  const tags = searchParams.tags?.split(',').filter(Boolean) || []
   const session = await auth()
 
   if (!session?.user) {
     redirect('/auth/signin')
   }
 
-  const { posts, currentPage, totalPages, total } = await getBlogPosts(
+  const { posts, currentPage, totalPages, total } = await getBlogPosts({
     search,
     page,
     limit,
     status,
     sort,
-    order
-    //
-  )
-  const categories = await getCategories()
-  const tags = await getTags()
+    order,
+    categories,
+    tags
+  })
+
+  const categoriesList = await getCategories()
+  const tagsList = await getTags()
+
   return (
     <div className="container py-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Blog Posts</h1>
-        <Button asChild>
-          <Link href="/dashboard/blog/create">Create Post</Link>
-        </Button>
-      </div>
-
       <Suspense fallback={<div>Loading posts...</div>}>
-
         <BlogTable
           pageSize={10}
           currentPage={currentPage}
           totalPages={totalPages}
           totalItems={total}
           posts={posts}
-          categories={categories}
-          tags={tags} />
+          categories={categoriesList}
+          tags={tagsList}
+        />
       </Suspense>
     </div>
   )

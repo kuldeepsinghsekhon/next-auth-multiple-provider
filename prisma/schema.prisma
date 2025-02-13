@@ -8,31 +8,33 @@ datasource db {
 }
 
 model User {
-  id               String          @id @default(cuid())
-  name             String?
-  email            String?         @unique
-  emailVerified    DateTime?
-  image            String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  password         String?
-  twoFactorEnabled Boolean         @default(false)
-  twoFactorSecret  String?
-  backupCodes      String?
-  roleId           String
-  accounts         Account[]
-  Authenticator    Authenticator[]
-  posts            BlogPost[]      @relation("UserPosts")
-  courses          Course[]        @relation("UserCourses")
-  enrollments      Enrollment[]
-  quizAttempts     QuizAttempt[]
-  scormTracking    ScormTracking[]
-  sessions         Session[]
-  submissions      Submission[]
-  role             Role            @relation(fields: [roleId], references: [id])
- lessonCompletions LessonCompletion[]
- comments    Comment[]
-  reactions     Reaction[]
+  id                String             @id @default(cuid())
+  name              String?
+  email             String?            @unique
+  emailVerified     DateTime?
+  image             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  password          String?
+  twoFactorEnabled  Boolean            @default(false)
+  twoFactorSecret   String?
+  backupCodes       String?
+  roleId            String
+  accounts          Account[]
+  Authenticator     Authenticator[]
+  authorProfile     AuthorProfile?
+  posts             BlogPost[]         @relation("UserPosts")
+  comments          Comment[]
+  courses           Course[]           @relation("UserCourses")
+  enrollments       Enrollment[]
+  lessonCompletions LessonCompletion[]
+  quizAttempts      QuizAttempt[]
+  reactions         Reaction[]
+  scormTracking     ScormTracking[]
+  sessions          Session[]
+  submissions       Submission[]
+  role              Role               @relation(fields: [roleId], references: [id])
+
   @@index([roleId])
 }
 
@@ -108,6 +110,29 @@ model Permission {
   roles       Role[]   @relation("PermissionToRole")
 }
 
+model AuthorProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  fullName       String
+  profilePhoto   String
+  tagline        String
+  qualifications String?
+  profession     String
+  expertise      Json
+  socialLinks    Json?
+  workExperience Json?
+  education      Json?
+  skills         Json?
+  publications   Json?
+  personalBrand  Json?
+  contactInfo    Json?
+  additionalInfo Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  email          String?
+  user           User     @relation(fields: [userId], references: [id])
+}
+
 model Product {
   id          String   @id @default(cuid())
   name        String
@@ -121,90 +146,86 @@ model Product {
 }
 
 model BlogPost {
-  id          String     @id @default(cuid())
-  title       String
-  slug        String     @unique
-  content     String
-  excerpt     String?
-  coverImage  String?
-  videoUrl    String?
-  published   Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  publishedAt DateTime?
-  authorId    String
-  author      User       @relation("UserPosts", fields: [authorId], references: [id])
-  categories  Category[] @relation("BlogPostToCategory")
-  tags        Tag[]      @relation("BlogPostToTag")
-  comments    Comment[]
-  reactions  Reaction[]
-  reactionCounts String @default("{}")
-  views Int  @default(0)
+  id             String     @id @default(cuid())
+  title          String
+  slug           String     @unique
+  content        String
+  excerpt        String?
+  coverImage     String?
+  videoUrl       String?
+  published      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  publishedAt    DateTime?
+  authorId       String
+  reactionCounts String     @default("{}")
+  views          Int        @default(0)
+  author         User       @relation("UserPosts", fields: [authorId], references: [id])
+  comments       Comment[]
+  reactions      Reaction[]
+  categories     Category[] @relation("BlogPostToCategory")
+  tags           Tag[]      @relation("BlogPostToTag")
+
   @@index([authorId])
   @@index([slug])
 }
 
 model Category {
-  id        String     @id @default(cuid())
-  name      String     @unique
-  description       String @default("No description Available")
-  slug      String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  posts     BlogPost[] @relation("BlogPostToCategory")
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String     @default("No description Available")
+  slug        String     @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  posts       BlogPost[] @relation("BlogPostToCategory")
 
   @@index([slug])
 }
 
 model Tag {
-  id        String     @id @default(cuid())
-  name      String     @unique
-  slug      String     @unique
-  description       String    @default("No description Available") 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  posts     BlogPost[] @relation("BlogPostToTag")
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String     @default("No description Available")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  posts       BlogPost[] @relation("BlogPostToTag")
 
   @@index([slug])
 }
+
 model Comment {
   id        String    @id @default(cuid())
-  content   String    
+  content   String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  post      BlogPost  @relation(fields: [postId], references: [id])
   postId    String
-  author    User      @relation(fields: [authorId], references: [id])
   authorId  String
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
   parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies   Comment[] @relation("CommentReplies")
+  author    User      @relation(fields: [authorId], references: [id])
+  post      BlogPost  @relation(fields: [postId], references: [id])
 
   @@index([postId])
   @@index([authorId])
 }
 
-enum ReactionType {
-  CLAP
-  LOVE
-  CELEBRATE
-  INSIGHTFUL
-}
-
 model Reaction {
-  id        String       @id @default(cuid())
+  id        String   @id @default(cuid())
   type      String
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  post      BlogPost     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   postId    String
-  user      User         @relation(fields: [userId], references: [id])
   userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  post      BlogPost @relation(fields: [postId], references: [id])
 
   @@unique([postId, userId, type])
   @@index([postId])
   @@index([userId])
 }
+
 model Course {
   id            String         @id @default(cuid())
   title         String
@@ -216,8 +237,8 @@ model Course {
   updatedAt     DateTime       @updatedAt
   authorId      String
   pathId        String?
-  path          LearningPath?  @relation(fields: [pathId], references: [id])
   author        User           @relation("UserCourses", fields: [authorId], references: [id])
+  path          LearningPath?  @relation(fields: [pathId], references: [id])
   enrollments   Enrollment[]
   modules       Module[]
   scormPackages ScormPackage[]
@@ -237,117 +258,98 @@ model Module {
 }
 
 model Lesson {
-  id          String       @id @default(cuid())
+  id          String             @id @default(cuid())
   title       String
   content     String
-   type      LessonType @default(TEXT)
+  type        String             @default("TEXT")
   moduleId    String
   order       Int
   duration    Int?
   assignments Assignment[]
-  module    Module     @relation(fields: [moduleId], references: [id])
-  quizzes     Quiz[]
+  module      Module             @relation(fields: [moduleId], references: [id])
   completions LessonCompletion[]
+  quizzes     Quiz?
+
   @@index([moduleId])
 }
+
 model LessonCompletion {
   id          String   @id @default(cuid())
   lessonId    String
   userId      String
   completedAt DateTime @default(now())
-  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [userId], references: [id])
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([lessonId, userId])
   @@index([lessonId])
   @@index([userId])
 }
-enum LessonType {
-  VIDEO
-  TEXT
-  QUIZ
-  EXERCISE
-}
-enum QuestionType {
-  MULTIPLE_CHOICE
-  TRUE_FALSE
-  SHORT_ANSWER
-  ESSAY
-}
-
-enum QuizStatus {
-  IN_PROGRESS
-  COMPLETED
-  EXPIRED
-  ABANDONED
-}
-
 
 model Quiz {
-  id          String       @id @default(cuid())
-  title       String
-  description String?
-  timeLimit   Int?        // minutes
-  passingScore Int        @default(70)
-  lesson      Lesson      @relation(fields: [lessonId], references: [id])
-  lessonId    String      @unique
-  questions   Question[]
-  attempts    QuizAttempt[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id           String        @id @default(cuid())
+  title        String
+  description  String?
+  timeLimit    Int?
+  passingScore Int           @default(70)
+  lessonId     String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  questions    Question[]
+  lesson       Lesson        @relation(fields: [lessonId], references: [id])
+  attempts     QuizAttempt[]
 
   @@index([lessonId])
 }
 
 model Question {
-  id            String       @id @default(cuid())
+  id            String            @id @default(cuid())
   quizId        String
   text          String
-  type          QuestionType @default(MULTIPLE_CHOICE)
+  type          String            @default("MULTIPLE_CHOICE")
   options       Json
   correctAnswer String
   explanation   String?
-  points        Int         @default(1)
+  points        Int               @default(1)
   order         Int
-  quiz          Quiz        @relation(fields: [quizId], references: [id])
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  quiz          Quiz              @relation(fields: [quizId], references: [id])
   attempts      QuestionAttempt[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
 
   @@index([quizId])
 }
 
 model QuizAttempt {
-  id           String       @id @default(cuid())
-  userId       String
-  quizId       String
-  startedAt    DateTime    @default(now())
-  completedAt  DateTime?
-  score        Int?
-  status       QuizStatus  @default(IN_PROGRESS)
-  questions    QuestionAttempt[]
-  user         User        @relation(fields: [userId], references: [id])
-  quiz         Quiz        @relation(fields: [quizId], references: [id])
+  id          String            @id @default(cuid())
+  userId      String
+  quizId      String
+  startedAt   DateTime          @default(now())
+  completedAt DateTime?
+  score       Int?
+  status      String            @default("IN_PROGRESS")
+  questions   QuestionAttempt[]
+  quiz        Quiz              @relation(fields: [quizId], references: [id])
+  user        User              @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([quizId])
 }
 
 model QuestionAttempt {
-  id           String      @id @default(cuid())
-  questionId   String
-  attemptId    String
-  answer       String
-  isCorrect    Boolean
-  points       Int
-  submittedAt  DateTime   @default(now())
-  attempt      QuizAttempt @relation(fields: [attemptId], references: [id])
-  question     Question    @relation(fields: [questionId], references: [id])
+  id          String      @id @default(cuid())
+  questionId  String
+  attemptId   String
+  answer      String
+  isCorrect   Boolean
+  points      Int
+  submittedAt DateTime    @default(now())
+  question    Question    @relation(fields: [questionId], references: [id])
+  attempt     QuizAttempt @relation(fields: [attemptId], references: [id])
 
   @@index([questionId])
   @@index([attemptId])
 }
-
 
 model Submission {
   id           String     @id @default(cuid())
@@ -358,8 +360,8 @@ model Submission {
   submittedAt  DateTime   @default(now())
   gradedAt     DateTime?
   feedback     String?
-  user         User       @relation(fields: [userId], references: [id])
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
 
   @@index([assignmentId])
   @@index([userId])
@@ -396,8 +398,8 @@ model Enrollment {
   grade       Float?
   startedAt   DateTime  @default(now())
   completedAt DateTime?
-  course      Course    @relation(fields: [courseId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
+  course      Course    @relation(fields: [courseId], references: [id])
 
   @@unique([userId, courseId])
 }
@@ -421,8 +423,8 @@ model ScormTracking {
   data      Json
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
-  user      User         @relation(fields: [userId], references: [id])
   package   ScormPackage @relation(fields: [packageId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
 
   @@unique([packageId, userId])
 }

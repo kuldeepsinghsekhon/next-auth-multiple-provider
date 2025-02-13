@@ -66,9 +66,9 @@ export function EditUserDialog({ user, roles, onUpdate, open,
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        {/* <Button variant="ghost" size="icon">
           <Edit2 className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

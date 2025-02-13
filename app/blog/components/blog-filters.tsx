@@ -7,15 +7,15 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 
 interface FilterParams {
   q?: string
-  category?: string
-  tag?: string
+  categories?: string
+  tags?: string
   sort?: string
   order?: 'asc' | 'desc'
 }
 
 interface BlogFiltersProps {
-  categories: Category[]
-  tags: Tag[]
+  categories?: string
+  tags?: string
   initialParams: FilterParams
 }
 
@@ -48,9 +48,9 @@ export function BlogFilters({ categories, tags, initialParams }: BlogFiltersProp
       />
 
       <Select
-        defaultValue={initialParams.category}
+        defaultValue={initialParams.categories}
         onValueChange={(value) => {
-          router.push(`${pathname}?${createQueryString({ category: value })}`)
+          router.push(`${pathname}?${createQueryString({ categories: value })}`)
         }}
       >
         <SelectTrigger className="w-[200px]">
@@ -58,7 +58,7 @@ export function BlogFilters({ categories, tags, initialParams }: BlogFiltersProp
         </SelectTrigger>
         <SelectContent>
           {categories.map((category) => (
-            <SelectItem key={category.id} value={category.id}>
+            <SelectItem key={category.id} value={category.name}>
               {category.name}
             </SelectItem>
           ))}

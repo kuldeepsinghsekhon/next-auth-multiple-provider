@@ -50,6 +50,7 @@ export function useSearch() {
       router.push(`${pathname}?${queryString}`)
     })
   }, [router, pathname, createQueryString])
+
   const handleSort = useCallback((field: string) => {
     const currentSort = searchParams.get('sort')
     const currentOrder = searchParams.get('order')
@@ -68,14 +69,38 @@ export function useSearch() {
     })
   }, [router, pathname, searchParams, createQueryString])
 
+  const handleCategories = useCallback((categories: string[]) => {
+    startTransition(() => {
+      const queryString = createQueryString({
+        categories: categories.join(','),
+        page: '1'
+      })
+      router.push(`${pathname}?${queryString}`)
+    })
+  }, [router, pathname, createQueryString])
+
+  const handleTags = useCallback((tags: string[]) => {
+    startTransition(() => {
+      const queryString = createQueryString({
+        tags: tags.join(','),
+        page: '1'
+      })
+      router.push(`${pathname}?${queryString}`)
+    })
+  }, [router, pathname, createQueryString])
+
   return {
     searchTerm,
     isPending,
     handleSearch,
     handleLimit,
     handleSort,
+    handleCategories,
+    handleTags,
     sortField: searchParams.get('sort') ?? '',
     sortOrder: searchParams.get('order') ?? '',
-    currentLimit: searchParams.get('limit') ?? '10'
+    currentLimit: searchParams.get('limit') ?? '10',
+    selectedCategories: searchParams.get('categories')?.split(',').filter(Boolean) || [],
+    selectedTags: searchParams.get('tags')?.split(',').filter(Boolean) || []
   }
 }

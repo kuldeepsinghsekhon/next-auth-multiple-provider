@@ -8,11 +8,10 @@ import slugify from "slugify"
 import { z } from "zod"
 import { BlogFormSchema } from "@/lib/blog/validation"
 import { stringify } from 'csv-stringify/sync'
+import { BlogPost, Category, Tag } from '@prisma/client'
 
 export async function getBlogPost(slug: string) {
-  return withAuth(
-    'view:blog',
-    async () => {
+   
       const post = await prisma.blogPost.findUnique({
         where: { slug },
         include: {
@@ -28,7 +27,28 @@ export async function getBlogPost(slug: string) {
 
       return post
     }
-  )
+  
+
+export async function getBlogPostsByAuthor(authorId: string) {
+  return prisma.blogPost.findMany({
+    where: {
+      authorId,
+      published: true
+    },
+    include: {
+      categories: true,
+      tags: true,
+      _count: {
+        select: {
+          comments: true,
+          reactions: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
 }
 export async function createBlogPost(data: z.infer<typeof BlogFormSchema>) {
   const session = await auth()
@@ -75,36 +95,62 @@ export async function createBlogPost(data: z.infer<typeof BlogFormSchema>) {
 export type SortField = 'title' | 'createdAt' | 'updatedAt' | 'published'
 export type SortOrder = 'asc' | 'desc'
 
- export async function getBlogPosts(
+interface GetBlogPostsParams {
+  search?: string
+  page?: number
+  limit?: number
+  status?: string
+  sort?: string
+  order?: string
+  categories?: string[]
+  tags?: string[]
+}
+
+export async function getBlogPosts({
   search = '',
   page = 1,
   limit = 10,
-  status?: string,
-  sort: SortField = 'createdAt',
-  order: SortOrder = 'desc'
-) {
-  const skip = (page - 1) * limit
+  status,
+  sort = 'createdAt',
+  order = 'desc',
+  categories = [],
+  tags = []
+}: GetBlogPostsParams) {
+  const where: any = {
+    title: {
+      contains: search,
+     // mode: 'insensitive'
+    }
+  }
+//console.log("categoriescategoriescategoriescategories",categories)
+  if (status) {
+    where.published = status === 'published'
+  }
 
-  const where = {
-    AND: [
-      search ? {
-        OR: [
-          { title: { contains: search } },
-          { content: { contains: search } }
-        ]
-      } : {},
-      status === 'published' ? { published: true } : 
-      status === 'draft' ? { published: false } : {}
-    ]
+  if (categories.length > 0) {
+    where.categories = {
+      some: {
+        name: {
+          in: categories
+        }
+      }
+    }
+  }
+
+  if (tags.length > 0) {
+    where.tags = {
+      some: {
+        name: {
+          in: tags
+        }
+      }
+    }
   }
 
   const [posts, total] = await Promise.all([
     prisma.blogPost.findMany({
       where,
-      skip,
-      take: limit,
       include: {
-        author: true,
         categories: true,
         tags: true,
         _count: {
@@ -116,16 +162,18 @@ export type SortOrder = 'asc' | 'desc'
       },
       orderBy: {
         [sort]: order
-      }
+      },
+      skip: (page - 1) * limit,
+      take: limit
     }),
     prisma.blogPost.count({ where })
   ])
 
   return {
     posts,
+    total,
     currentPage: page,
-    totalPages: Math.ceil(total / limit),
-    total
+    totalPages: Math.ceil(total / limit)
   }
 }
 export async function getEditBlogPost(id: string) {

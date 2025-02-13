@@ -76,11 +76,16 @@ console.log(user?.role?.id)
  ))
   return (
     <Card>
+      
       <CardHeader>
         <CardTitle>Users</CardTitle>
         <CardDescription>Manage user accounts and roles</CardDescription>
+
+
       </CardHeader>
+      
       <CardContent>
+      <ItemsSearch /> 
       <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -105,6 +110,8 @@ console.log(user?.role?.id)
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
+
         <Table>
           <TableHeader>
            

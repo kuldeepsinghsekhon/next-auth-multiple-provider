@@ -4,7 +4,21 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { withAuth } from "@/lib/middleware/withAuth"
-
+export interface AuthorProfile {
+  userId: string
+  fullName: string
+  profilePhoto?: string
+  tagline: string
+  qualifications?: string
+  profession: string
+  expertise: string[]
+  socialLinks?: {
+    linkedin?: string
+    twitter?: string
+    website?: string
+  }
+  // Add other fields
+}
 export async function getAuthorProfile(userId: string) {
     console.log('userIduserIduserIdusrId',userId)
 
@@ -28,6 +42,22 @@ export async function getAllAuthorProfiles() {
           // Add other required fields here
         }
       }
+    }
+  })
+}
+export async function updateAuthorProfile(data: AuthorProfile) {
+  const session = await auth()
+  
+  if (!session?.user) {
+    throw new Error("Not authenticated")
+  }
+
+  return prisma.authorProfile.upsert({
+    where: { userId: session.user.id },
+    update: data,
+    create: {
+      userId: session.user.id,
+      ...data
     }
   })
 }

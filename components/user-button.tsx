@@ -58,7 +58,7 @@ export default async function UserButton() {
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-        <CustomLink href="/settings">Settings</CustomLink>
+        <CustomLink href="/settings/account">Settings</CustomLink>
           
           </DropdownMenuItem>
         <DropdownMenuItem>Support</DropdownMenuItem>

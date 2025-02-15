@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
-import QRCode from "qrcode.react"
+import {QRCodeSVG} from "qrcode.react"
 import { setupTwoFactor, verifyAndEnableTwoFactor, disableTwoFactor } from "@/actions/auth"
 
 export function TwoFactorSetup() {
@@ -108,7 +108,7 @@ export function TwoFactorSetup() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center space-y-4">
-              <QRCode
+              <QRCodeSVG
                 value={`otpauth://totp/${encodeURIComponent("Your App")}:${encodeURIComponent("user@email.com")}?secret=${secret}&issuer=${encodeURIComponent("Your App")}`}
                 size={200}
               />

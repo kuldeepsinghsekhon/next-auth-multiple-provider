@@ -54,38 +54,38 @@ const profileSchema = z.object({
     .describe("A brief description that appears under your name (max 160 characters)"),
   qualifications: z.string().optional()
     .describe("Your academic qualifications or certifications"),
-  profession: z.string()
+  profession: z.string().optional()
     .describe("Your current job title or professional role"),
   
   // Work Experience
   workExperience: z.array(z.object({
-    company: z.string(),
-    title: z.string(),
-    duration: z.string(),
-    industry: z.string(),
-    achievements: z.array(z.string())
-  })),
+    company: z.string().optional(),
+    title: z.string().optional(),
+    duration: z.string().optional(),
+    industry: z.string().optional(),
+    achievements: z.array(z.string()).optional()
+  })).optional(),
 
   // Education
   education: z.array(z.object({
-    institution: z.string(),
-    degree: z.string(),
-    field: z.string()
-  })),
+    institution: z.string().optional(),
+    degree: z.string().optional(),
+    field: z.string().optional()
+  })).optional(),
 
   // Skills
   skills: z.object({
-    core: z.array(z.string()),
-    technical: z.array(z.string()),
-    soft: z.array(z.string())
+    core: z.array(z.string()).optional(),
+    technical: z.array(z.string()).optional(),
+    soft: z.array(z.string()).optional()
   }),
 
   // Publications
   publications: z.object({
-    books: z.array(z.string()),
-    guestPosts: z.array(z.string()),
-    talks: z.array(z.string())
-  }),
+    books: z.array(z.string()).optional(),
+    guestPosts: z.array(z.string()).optional(),
+    talks: z.array(z.string()).optional()
+  }).optional(),
 
   // Social & Contact
   socialLinks: z.object({
@@ -107,18 +107,18 @@ const profileSchema = z.object({
   
   // Additional Info
   personalBrand: z.object({
-    mission: z.string(),
-    philosophy: z.string()
+    mission: z.string().optional(),
+    philosophy: z.string().optional()
   }),
   contactInfo: z.object({
-    freelance: z.boolean(),
-    consultation: z.array(z.string()),
-    preferredMethod: z.string()
+    freelance: z.boolean().optional(),
+    consultation: z.array(z.string()).optional(),
+    preferredMethod: z.string().optional()
   }),
   additionalInfo: z.object({
-    volunteerWork: z.array(z.string()),
-    hobbies: z.array(z.string()),
-    languages: z.array(z.string())
+    volunteerWork: z.array(z.string()).optional(),
+    hobbies: z.array(z.string()).optional(),
+    languages: z.array(z.string()).optional()
   })
 })
 

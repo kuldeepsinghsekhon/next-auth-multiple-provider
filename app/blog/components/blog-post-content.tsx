@@ -71,10 +71,7 @@ export function BlogPostContent({ post }: { post: BlogPostWithRelations }) {
         </div>
 
    
-      <ReactionButtons 
-            postId={post.id} 
-            initialCounts={post.reactionCounts}
-          />
+
         
         <ShareButtons 
           url={`/blog/${post.slug}`}

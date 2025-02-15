@@ -126,6 +126,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
      Zoom,
      
   ],
+  // pages: {
+  //   signIn: '/auth/signin',
+  //   error: '/auth/error',
+  //   verifyRequest: '/auth/verify',
+  // },
   basePath: "/auth",
   session: { strategy: "jwt" },
   callbacks: {

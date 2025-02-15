@@ -57,6 +57,25 @@ const PERMISSIONS_BY_CATEGORY: Record<PermissionCategory, string[]> = {
     'delete:own:course',
     'publish:course',
     'unpublish:course'
+  ],
+  comments: [
+    'view:comments',
+    'create:comment',
+    'edit:comment',
+    'delete:comment',
+    'edit:own:comment',
+    'delete:own:comment'
+  ],
+  reactions: [
+    'view:reactions',
+    'edit:reaction',
+    'delete:reaction',
+    'edit:own:reaction',
+    'delete:own:reaction'
+  ],
+  settings: [
+    'view:settings',
+    'edit:settings'
   ]
 }
 

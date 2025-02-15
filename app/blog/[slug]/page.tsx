@@ -11,7 +11,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = params
+  const {slug} = await params
   const post = await getBlogPost(slug)
   
   return {
@@ -24,8 +24,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-  const { slug } = params
-  const post = await getBlogPost(slug).catch(() => null)
+  const {slug} = await params
+  const post = await getBlogPost(slug)
+  //.catch(() => null)
 
   if (!post) {
     notFound()
@@ -33,18 +34,25 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const authorProfile = await getAuthorProfile(post.authorId)
 
+  // Ensure reactionCounts exists
+  const reactionCounts = post.reactionCounts || {}
+
   return (
     <article className="container py-6 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
       <div>
         <Suspense fallback={<div>Loading post...</div>}>
           <BlogPostContent post={post} />
         </Suspense>
+
       </div>
       <aside className="space-y-6">
         {authorProfile && (
           <AuthorShortProfile profile={authorProfile} />
         )}
-        <ReactionButtons postId={post.id} />
+          <ReactionButtons 
+            postId={post.id} 
+            initialCounts={reactionCounts}
+          />
       </aside>
     </article>
   )

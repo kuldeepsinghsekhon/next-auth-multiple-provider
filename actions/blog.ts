@@ -12,15 +12,44 @@ import { BlogPost, Category, Tag } from '@prisma/client'
 
 export async function getBlogPost(slug: string) {
    
-      const post = await prisma.blogPost.findUnique({
-        where: { slug },
+  const post = await prisma.blogPost.findUnique({
+    where: { slug },
+    include: {
+      author: true,
+      categories: true,
+      comments: {
         include: {
           author: true,
-          categories: true,
-          tags: true
+          replies: {
+            include: {
+              author: true,
+              _count: {
+                select: {
+                  replies: true
+                }
+              }
+            }
+          },
+          _count: {
+            select: {
+              replies: true
+            }
+          }
+        },
+        where: {
+          parentId: null // Only fetch top-level comments
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
-      })
-
+      },
+      _count: {
+        select: {
+          comments: true
+        }
+      }
+    }
+  })
       if (!post) {
         throw new Error('Post not found')
       }
@@ -307,52 +336,229 @@ export async function addComment(postId: string, content: string, parentId?: str
   )
 }
 
-export async function addReaction(postId: string, type: string, add: boolean) {
+export async function editComment(commentId: string, content: string) {
   return withAuth(
-    'react:blog',
+    'edit:comment',
     async () => {
       const session = await auth()
       
-      if (add) {
-        await prisma.reaction.create({
-          data: {
-            type,
-            postId,
-            userId: session!.user.id
-          }
-        })
-      } else {
-        await prisma.reaction.delete({
-          where: {
-            postId_userId_type: {
-              postId,
-              userId: session!.user.id,
-              type
-            }
-          }
-        })
+      const comment = await prisma.comment.findUnique({
+        where: { id: commentId }
+      })
+
+      if (!comment || comment.authorId !== session!.user.id) {
+        throw new Error('Unauthorized')
       }
 
-      const reactions = await prisma.reaction.groupBy({
-        by: ['type'],
-        where: { postId },
-        _count: true
+      const updatedComment = await prisma.comment.update({
+        where: { id: commentId },
+        data: { content }
       })
 
-      const counts = reactions.reduce((acc, { type, _count }) => {
-        acc[type] = _count
-        return acc
-      }, {})
-
-      await prisma.blogPost.update({
-        where: { id: postId },
-        data: { reactionCounts: counts }
-      })
-
-      return counts
+      revalidatePath(`/blog/[slug]`)
+      return updatedComment
     }
   )
 }
+
+export async function deleteComment(commentId: string) {
+  return withAuth(
+    'delete:comment',
+    async () => {
+      const session = await auth()
+      
+      const comment = await prisma.comment.findUnique({
+        where: { id: commentId }
+      })
+
+      if (!comment || comment.authorId !== session!.user.id) {
+        throw new Error('Unauthorized')
+      }
+
+      await prisma.comment.delete({
+        where: { id: commentId }
+      })
+
+      revalidatePath(`/blog/[slug]`)
+      return { success: true }
+    }
+  )
+}
+
+export async function addReaction(postId: string, type: string, add: boolean) {
+  const session = await auth()
+  if (!session?.user) throw new Error('Not authenticated')
+
+  const reactionValues = {
+    'SMILE': 1,
+    'LIKE': 2,
+    'HEART': 3,
+    'STAR': 4
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const post = await tx.blogPost.findUnique({
+        where: { id: postId },
+        include: { 
+          author: {
+            include: {
+              authorProfile: true
+            }
+          }
+        }
+      })
+
+      if (!post) {
+        throw new Error('Post not found')
+      }
+
+      // Handle existing reaction
+      const existingReaction = await tx.reaction.findFirst({
+        where: {
+          postId,
+          userId: session.user.id
+        }
+      })
+
+      let currentScore = post.author.authorProfile?.reactionScore || 0
+
+      // Remove existing reaction and update score
+      if (existingReaction) {
+        await tx.reaction.delete({
+          where: { id: existingReaction.id }
+        })
+        currentScore -= existingReaction.value
+      }
+
+      // Add new reaction if requested
+      if (add) {
+        const newReactionValue = reactionValues[type]
+        await tx.reaction.create({
+          data: {
+            type,
+            value: newReactionValue,
+            postId,
+            userId: session.user.id
+          }
+        })
+        currentScore += newReactionValue
+
+        // Update or create author profile with the correct score
+        await tx.authorProfile.upsert({
+          where: { 
+            userId: post.authorId 
+          },
+          create: {
+            userId: post.authorId,
+            fullName: post.author.name || '',
+            reactionScore: currentScore,
+            profilePhoto: post.author.image || '',
+            tagline: '',
+            qualifications: '',
+            profession: '',
+            expertise: [],
+            socialLinks: {},
+            workExperience: [],
+            education: [],
+            skills: {
+              core: [],
+              technical: [],
+              soft: []
+            },
+            publications: {
+              books: [],
+              guestPosts: [],
+              talks: []
+            },
+            personalBrand: {
+              mission: '',
+              philosophy: ''
+            },
+            contactInfo: {
+              freelance: false,
+              consultation: [],
+              preferredMethod: ''
+            },
+            additionalInfo: {
+              volunteerWork: [],
+              hobbies: [],
+              languages: []
+            }
+          },
+          update: {
+            reactionScore: currentScore // Set the absolute value instead of incrementing
+          }
+        })
+      } else if (post.author.authorProfile) {
+        // If we're just removing a reaction, update the score
+        await tx.authorProfile.update({
+          where: { userId: post.authorId },
+          data: {
+            reactionScore: currentScore
+          }
+        })
+      }
+    })
+
+    // Return updated counts
+    const reactions = await prisma.reaction.groupBy({
+      by: ['type'],
+      where: { postId },
+      _count: true
+    })
+
+    // Transform the counts into the expected format
+    const updatedCounts = reactions.reduce<Record<string, number>>((acc, curr) => {
+      acc[curr.type] = curr._count
+      return acc
+    }, {})
+
+    // Update the blog post's reactionCounts
+    await prisma.blogPost.update({
+      where: { id: postId },
+      data: {
+        reactionCounts: updatedCounts
+      }
+    })
+
+    return updatedCounts
+  } catch (error) {
+    console.error('Error handling reaction:', error)
+    throw new Error(`Failed to update reaction: ${error.message}`)
+  }
+}
+
+export async function getUserReactions(postId: string) {
+  const session = await auth()
+  if (!session?.user) return []
+
+  const reactions = await prisma.reaction.findMany({
+    where: {
+      postId,
+      userId: session.user.id
+    },
+    select: { type: true }
+  })
+
+  return reactions.map(r => r.type)
+}
+
+export async function getUserReaction(postId: string) {
+  const session = await auth()
+  if (!session?.user) return null
+
+  return prisma.reaction.findFirst({
+    where: {
+      postId,
+      userId: session.user.id
+    },
+    select: {
+      type: true
+    }
+  })
+}
+
 export async function getCategories() {
   return prisma.category.findMany({
     orderBy: { name: 'asc' }

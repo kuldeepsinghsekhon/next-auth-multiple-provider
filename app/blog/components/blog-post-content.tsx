@@ -1,14 +1,12 @@
-'use client'
+'use server'
 
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import { useMDXComponents } from '@/lib/blog/mdx-components'
 import { formatDistanceToNow } from 'date-fns'
 import { Clock, Eye } from 'lucide-react'
 import type { BlogPost, User, Category } from '@prisma/client'
 import { TableOfContents } from './table-of-contents'
 import { ShareButtons } from './share-buttons'
-import { CommentSection } from './comment-section'
-import { ReactionButtons } from './reaction-buttons'
+import { divider } from '@uiw/react-md-editor'
+import { MDXProvider } from './mdx-provider'
 
 
 interface BlogPostWithRelations extends BlogPost {
@@ -20,18 +18,17 @@ function calculateReadTime(content: string): number {
   const words = content.trim().split(/\s+/).length
   return Math.ceil(words / wordsPerMinute)
 }
-export function BlogPostContent({ post }: { post: BlogPostWithRelations }) {
-    const components = useMDXComponents()
+export async function BlogPostContent({ post }: { post: BlogPostWithRelations }) {
     const readTime = calculateReadTime(post.content)
 
       return (
         <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-8">
         <aside className="hidden lg:block">
           <div className="sticky top-8">
-            <TableOfContents content={post.content} />
+             <TableOfContents content={post.content} /> 
           </div>
         </aside>
-        <article>
+        <article> 
       {post.coverImage && (
         <img
           src={post.coverImage}
@@ -58,7 +55,8 @@ export function BlogPostContent({ post }: { post: BlogPostWithRelations }) {
         </header>
 
       <div className="prose prose-zinc dark:prose-invert max-w-none">
-      <MDXRemote source={post.content} components={components} />
+      <MDXProvider content={post.content}  /> 
+
     </div>
 
       <footer className="mt-8 pt-4 border-t">
@@ -70,8 +68,7 @@ export function BlogPostContent({ post }: { post: BlogPostWithRelations }) {
           ))}
         </div>
 
-   
-
+  
         
         <ShareButtons 
           url={`/blog/${post.slug}`}
@@ -79,12 +76,13 @@ export function BlogPostContent({ post }: { post: BlogPostWithRelations }) {
           description={post.excerpt || ''}
         />
         
-        <CommentSection
+        {/* <CommentSection
           postId={post.id}
           comments={post.comments}
-        />
+        /> */}
         </footer>
       </article>
     </div>
+
   )
 }

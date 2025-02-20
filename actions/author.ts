@@ -20,13 +20,11 @@ export interface AuthorProfile {
   // Add other fields
 }
 export async function getAuthorProfile(userId: string) {
-    console.log('userIduserIduserIdusrId',userId)
 
     const authorProfile=prisma.authorProfile.findUnique({
     where: { userId }
 
   })
-  console.log('authorProfileauthorProfileauthorProfileauthorProfileauthorProfile',authorProfile)
     return authorProfile
 }
 

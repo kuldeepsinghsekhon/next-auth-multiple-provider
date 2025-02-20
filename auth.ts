@@ -147,15 +147,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
           }
         })
-        console.log("user email",user?.email)
+
         // For new users, set default role and permissions
         if (!existingUser) {
           const defaultRole = await prisma.role.findUnique({
             where: { name: 'USER' },
             include: { permissions: true }
           }) 
-          console.log("Not existingUser",existingUser?.email)
-console.log("Default Role",defaultRole)
+
           if (!defaultRole) return false
           // Create new user with string permissions
           await prisma.user.create({

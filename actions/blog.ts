@@ -12,44 +12,15 @@ import { BlogPost, Category, Tag } from '@prisma/client'
 
 export async function getBlogPost(slug: string) {
    
-  const post = await prisma.blogPost.findUnique({
-    where: { slug },
-    include: {
-      author: true,
-      categories: true,
-      comments: {
+      const post = await prisma.blogPost.findUnique({
+        where: { slug },
         include: {
           author: true,
-          replies: {
-            include: {
-              author: true,
-              _count: {
-                select: {
-                  replies: true
-                }
-              }
-            }
-          },
-          _count: {
-            select: {
-              replies: true
-            }
-          }
-        },
-        where: {
-          parentId: null // Only fetch top-level comments
-        },
-        orderBy: {
-          createdAt: 'desc'
+          categories: true,
+          tags: true
         }
-      },
-      _count: {
-        select: {
-          comments: true
-        }
-      }
-    }
-  })
+      })
+
       if (!post) {
         throw new Error('Post not found')
       }
@@ -354,7 +325,11 @@ export async function editComment(commentId: string, content: string) {
         where: { id: commentId },
         data: { content }
       })
-
+      console.log({
+        content,
+        authorId: session!.user.id,
+        commentId
+      },comment)
       revalidatePath(`/blog/[slug]`)
       return updatedComment
     }

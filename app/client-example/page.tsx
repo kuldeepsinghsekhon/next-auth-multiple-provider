@@ -7,13 +7,14 @@ export default async function ClientPage() {
   if (session?.user) {
     // TODO: Look into https://react.dev/reference/react/experimental_taintObjectReference
     // filter out sensitive data before passing to client.
-    session.user = {
-      name: session.user.name,
-      email: session.user.email,
-      image: session.user.image,
-      role: session.user.role,
-      permissions:session.user.permissions
-    }
+    // session.user = {
+    //   name: session.user.name,
+    //   id: session.user.id,
+    //   email: session.user.email,
+    //   image: session.user.image,
+    //   role: session.user.role,
+    //   permissions:session.user.permissions
+    // }
   }
 
   return (

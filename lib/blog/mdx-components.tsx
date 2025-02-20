@@ -1,5 +1,7 @@
+//'use server'
+
 import { CodeBlock } from '@/components/mdx/code-block'
-//import { MDXComponents } from 'mdx/types'
+
 export function useMDXComponents() {
   return {
     pre: ({ children }: { children: React.ReactNode }) => {

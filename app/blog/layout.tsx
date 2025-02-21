@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: React.PropsWithChildren) 
   return (
 
           <main className="mx-auto w-full  flex-auto px-4 py-4 sm:px-6 md:py-6">
-    <h1>Blog</h1>
+   
     <SessionProvider session={session}>
           {children}
   </SessionProvider>

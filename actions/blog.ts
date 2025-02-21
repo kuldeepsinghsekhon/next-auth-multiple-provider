@@ -109,7 +109,7 @@ interface GetBlogPostsParams {
 export async function getBlogPosts({
   search = '',
   page = 1,
-  limit = 10,
+  limit = 6,
   status,
   sort = 'createdAt',
   order = 'desc',
@@ -301,7 +301,8 @@ export async function addComment(postId: string, content: string, parentId?: str
         }
       })
 
-      revalidatePath(`/blog/[slug]`)
+      revalidatePath(`/blog/[slug]`, { type: 'page' })
+
       return comment
     }
   )
@@ -325,11 +326,7 @@ export async function editComment(commentId: string, content: string) {
         where: { id: commentId },
         data: { content }
       })
-      console.log({
-        content,
-        authorId: session!.user.id,
-        commentId
-      },comment)
+
       revalidatePath(`/blog/[slug]`)
       return updatedComment
     }

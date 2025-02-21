@@ -7,13 +7,13 @@ interface MDXProviderProps {
   content: string
 }
 
-export  function MDXProvider({ content }: MDXProviderProps) {
+export function MDXProvider({ content }: MDXProviderProps) {
   const components = useMDXComponents()
 
   return (
     <MDXRemote 
       source={content} 
-       components={components}
+      components={components}
     />
   )
 }
